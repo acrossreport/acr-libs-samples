@@ -1,0 +1,6 @@
+# generated sample outputs
+**/output.pdf
+**/output_*.png
+**/bin/
+**/obj/
+*.class
