@@ -13,7 +13,8 @@ python3 render_sample.py
 
 ## 2. C# (.NET, P/Invoke)
 
-.NET 8 SDK が必要です。
+.NET 8 SDK が必要です。Ubuntu/Debian なら
+`sudo apt install dotnet-sdk-8.0` で入ります。
 
 ```bash
 cd csharp
@@ -43,10 +44,7 @@ java -jar target/acr-libs-sample-jar-with-dependencies.jar
 Ubuntu/Debian なら `sudo apt install openjdk-21-jdk maven` でJDKと
 Mavenがまとめて入ります。
 
-Python / Java は実機（Ubuntu 24.04, aarch64）で動作確認済みです。
-C#/VB.NET はロジック上は Windows 版と同一ですが、この環境に .NET SDK
-が無く未実機確認です（`dotnet` が通常どおり動く環境であれば、そのまま
-動作するはずです）。
+4言語とも実機（Ubuntu 24.04, aarch64）で動作確認済みです。
 
 ## ライセンス・アクティベーション
 

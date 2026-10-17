@@ -36,8 +36,8 @@ acr-libs-samples/
 
 | フォルダ | 状態 |
 |---|---|
-| `windows-arm64/` | ✅ 動作確認済み |
-| `linux-arm64/` | ✅ 動作確認済み（Python / Java。C#/VB.NETはロジック上はWindows版と同一ですが、この環境に.NET SDKが無く未実機確認です） |
+| `windows-arm64/` | ✅ 動作確認済み（4言語とも） |
+| `linux-arm64/` | ✅ 動作確認済み（4言語とも） |
 
 Windows x64 / macOS / Linux x64 向けのフォルダは、ビルドでき次第追加します。
 手元にそのプラットフォームが無い場合は、環境変数 `ACR_NATIVE_LIB` で
