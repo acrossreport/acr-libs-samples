@@ -18,7 +18,7 @@ namespace AcrLibsSample;
 
 internal static class Native
 {
-    // acr_dll/Cargo.toml の [lib] name = "axr_runtime" が生成物のベース名。
+    // "axr_runtime" がライブラリのベース名。
     // DllImport に拡張子やプラットフォーム依存の "lib" プレフィックスは書かない。
     // 実際のパス解決は AppContext.SetDllImportResolver (Program.cs) で行う。
     private const string LibName = "axr_runtime";

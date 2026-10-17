@@ -9,8 +9,7 @@ Node.js から ACR を組み込むサンプルであるのに対し、ここで�
 置いています。
 
 **ビルドは不要です。** 対応プラットフォーム向けのビルド済みライブラリを
-`native/<rid>/` に同梱しています。利用者は `Acr` ソース一式やRustの
-ビルド環境を用意する必要はありません。
+`native/<rid>/` に同梱しています。
 
 ```
 acr-libs-samples/
@@ -37,9 +36,7 @@ acr-libs-samples/
 `native/` に無いプラットフォームで動かす場合は、環境変数
 `ACR_NATIVE_LIB` でライブラリの場所を指定してください
 （Python/C#/VB.NET はライブラリファイルへのフルパス、Java は
-ライブラリファイルを含むディレクトリのパス）。ライブラリ自体は
-`Acr` ワークスペース側（このリポジトリの管理者）でビルドして提供します。
-利用者側でRustをビルドする必要はありません。
+ライブラリファイルを含むディレクトリのパス）。
 
 ## 公開しているAPI
 
@@ -148,8 +145,8 @@ https://maven.apache.org/download.cgi からバイナリZIPを取得して展開
 ## 注意点（組み込み時に意識すること）
 
 - `acr_render_pdf` / `acr_render_page_png` / `acr_render_zip` が返す
-  バッファは Rust 側で `Box::into_raw` されたものです。使い終わったら
-  必ず `acr_free_buffer(ptr, len)` を呼んでください。呼ばないとメモリ
+  バッファはライブラリ側が確保したメモリです。使い終わったら必ず
+  `acr_free_buffer(ptr, len)` を呼んでください。呼ばないとメモリ
   リークします（プロセス終了時にOSが回収しますが、長時間稼働する
   サーバープロセスに組み込む場合は必須です）。
 - `acr_license_check()` が `0`（未認証）または `1`（DESIGNER）のときは
@@ -158,20 +155,4 @@ https://maven.apache.org/download.cgi からバイナリZIPを取得して展開
   を呼んで有効化してください。
 - テンプレートJSONは最低限、`ACR.Report.Sections.Section` の配列に
   **「Detail」という名前に正規化されるセクションを1つだけ**含む必要が
-  あります（`acr_core/src/layout/engine.rs` の `assert!` で強制されて
-  います）。`common/template.json` はその最小形です。
-
-## （リポジトリ管理者向け）ネイティブライブラリの追加・更新
-
-`native/<rid>/` のライブラリは `Acr` ワークスペース側でビルドして、この
-リポジトリにコピーします。利用者側はビルド不要です。
-
-```bash
-# Acr ワークスペースのルートで
-cargo build --release -p acr_dll
-# 生成物を native/<rid>/ にコピー（例: Windows ARM64）
-cp target/release/axr_runtime.dll ../acr-libs-samples/native/win-arm64/
-```
-
-RID の命名は `.NET` の RID（`win-x64` / `win-arm64` / `osx-x64` /
-`osx-arm64` / `linux-x64` / `linux-arm64`）に合わせています。
+  あります。`common/template.json` はその最小形です。
