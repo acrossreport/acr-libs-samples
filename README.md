@@ -55,9 +55,35 @@ acr-libs-samples/
 | `acr_free_buffer(ptr, len)` | 上記が返したバッファを解放（呼び出し側は必ず呼ぶこと） |
 
 各サンプルはこのうち `acr_version` / `acr_license_check` /
+`acr_license_activate` / `acr_license_last_message` /
 `acr_get_page_count` / `acr_render_pdf` / `acr_free_buffer` を使い、
 `common/template.json` + `common/data.json` から `output.pdf` を1本
 生成するだけの、最小構成になっています。
+
+## ライセンスとウォーターマーク
+
+**アクティベートしていない状態（既定）では、出力PDFにウォーターマークが
+入ります。** これは `acr_license_check()` の戻り値（0=未認証, 1=DESIGNER,
+2=DESIGNERPRO）に応じて `acr_render_pdf` 側が自動的に付加するもので、
+DESIGNERPRO ライセンスでアクティベートした場合のみウォーターマークが
+消えます。
+
+各サンプルは、環境変数 `ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY` の両方が
+設定されている場合のみ `acr_license_activate()` を呼び出します（未設定
+なら "activation: skipped" と表示してそのまま未認証状態で進みます）。
+
+```bash
+# 未アクティベート: ウォーターマークあり
+python render_sample.py
+
+# アクティベート: 有効なDESIGNERPROキーならウォーターマークなし
+ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-DESIGNERPRO-xxxx-20260401-xxxxxxxx \
+    python render_sample.py
+```
+
+実行結果には `activation: success/failed/skipped`・`license tier`・
+`watermark: yes/no` が毎回表示されるので、アクティベーションの有無で
+出力が変わることを確認できます。
 
 ## 1. Python (ctypes)
 

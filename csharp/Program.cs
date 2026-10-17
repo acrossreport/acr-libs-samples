@@ -2,9 +2,12 @@
 // 最小サンプル。ビルドは不要です。対応プラットフォーム向けのライブラリは
 // native/<rid>/ に同梱されています。
 //
-// 実行:
+// 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
 //     cd acr-libs-samples/csharp
 //     dotnet run
+//
+// 実行（ライセンスキーでアクティベートしてから生成）:
+//     ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx dotnet run
 
 using System;
 using System.IO;
@@ -25,6 +28,14 @@ internal static class Native
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int acr_license_check();
+
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int acr_license_activate(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string email,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string key);
+
+    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr acr_license_last_message();
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int acr_get_page_count(
@@ -88,9 +99,25 @@ internal static class Program
         RegisterResolver();
 
         var version = Marshal.PtrToStringUTF8(Native.acr_version());
-        var tier = Native.acr_license_check();
         Console.WriteLine($"axr_runtime version: {version}");
+
+        var email = Environment.GetEnvironmentVariable("ACR_LICENSE_EMAIL");
+        var key = Environment.GetEnvironmentVariable("ACR_LICENSE_KEY");
+        if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(key))
+        {
+            var ok = Native.acr_license_activate(email, key) != 0;
+            var message = Marshal.PtrToStringUTF8(Native.acr_license_last_message());
+            Console.WriteLine($"activation: {(ok ? "success" : "failed")} ({message})");
+        }
+        else
+        {
+            Console.WriteLine("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)");
+        }
+
+        var tier = Native.acr_license_check();
+        var watermark = tier < 2;
         Console.WriteLine($"license tier: {tier} (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)");
+        Console.WriteLine($"watermark: {(watermark ? "yes" : "no")}");
 
         var sampleDir = AppContext.BaseDirectory;
         var commonDir = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", "..", "common"));

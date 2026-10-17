@@ -14,10 +14,14 @@ import java.nio.file.Paths;
  * 最小サンプル。ビルドは不要です。対応プラットフォーム向けのライブラリは
  * native/<rid>/ に同梱されています。
  *
- * 実行:
+ * 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
  *   cd acr-libs-samples/java
  *   mvn package
  *   java -jar target/acr-libs-samples-jar-with-dependencies.jar
+ *
+ * 実行（ライセンスキーでアクティベートしてから生成）:
+ *   ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
+ *       java -jar target/acr-libs-samples-jar-with-dependencies.jar
  */
 public final class Main {
 
@@ -73,9 +77,22 @@ public final class Main {
         AcrRuntime lib = AcrRuntime.INSTANCE;
 
         String version = lib.acr_version().getString(0, "UTF-8");
-        int tier = lib.acr_license_check();
         System.out.println("axr_runtime version: " + version);
+
+        String email = System.getenv("ACR_LICENSE_EMAIL");
+        String key = System.getenv("ACR_LICENSE_KEY");
+        if (email != null && !email.isEmpty() && key != null && !key.isEmpty()) {
+            boolean ok = lib.acr_license_activate(email, key) != 0;
+            String message = lib.acr_license_last_message().getString(0, "UTF-8");
+            System.out.println("activation: " + (ok ? "success" : "failed") + " (" + message + ")");
+        } else {
+            System.out.println("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)");
+        }
+
+        int tier = lib.acr_license_check();
+        boolean watermark = tier < 2;
         System.out.println("license tier: " + tier + " (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)");
+        System.out.println("watermark: " + (watermark ? "yes" : "no"));
 
         Path commonDir = samplesRoot.resolve("common");
         String templateJson = Files.readString(commonDir.resolve("template.json"), StandardCharsets.UTF_8);

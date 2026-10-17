@@ -2,9 +2,12 @@
 ' 最小サンプル。ビルドは不要です。対応プラットフォーム向けのライブラリは
 ' native/<rid>/ に同梱されています。
 '
-' 実行:
+' 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
 '     cd acr-libs-samples/vb
 '     dotnet run
+'
+' 実行（ライセンスキーでアクティベートしてから生成）:
+'     ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx dotnet run
 
 Imports System
 Imports System.IO
@@ -20,6 +23,16 @@ Module Native
 
     <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
     Public Function acr_license_check() As Integer
+    End Function
+
+    <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
+    Public Function acr_license_activate(
+        <MarshalAs(UnmanagedType.LPUTF8Str)> email As String,
+        <MarshalAs(UnmanagedType.LPUTF8Str)> key As String) As Integer
+    End Function
+
+    <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
+    Public Function acr_license_last_message() As IntPtr
     End Function
 
     <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
@@ -91,9 +104,22 @@ Module Program
         RegisterResolver()
 
         Dim version As String = Marshal.PtrToStringUTF8(Native.acr_version())
-        Dim tier As Integer = Native.acr_license_check()
         Console.WriteLine($"axr_runtime version: {version}")
+
+        Dim email As String = Environment.GetEnvironmentVariable("ACR_LICENSE_EMAIL")
+        Dim key As String = Environment.GetEnvironmentVariable("ACR_LICENSE_KEY")
+        If Not String.IsNullOrEmpty(email) AndAlso Not String.IsNullOrEmpty(key) Then
+            Dim ok As Boolean = (Native.acr_license_activate(email, key) <> 0)
+            Dim message As String = Marshal.PtrToStringUTF8(Native.acr_license_last_message())
+            Console.WriteLine($"activation: {If(ok, "success", "failed")} ({message})")
+        Else
+            Console.WriteLine("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)")
+        End If
+
+        Dim tier As Integer = Native.acr_license_check()
+        Dim watermark As Boolean = (tier < 2)
         Console.WriteLine($"license tier: {tier} (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)")
+        Console.WriteLine($"watermark: {If(watermark, "yes", "no")}")
 
         Dim sampleDir As String = AppContext.BaseDirectory
         ' bin/Debug/net8.0 から見て acr-libs-samples の common/ は4階層上。

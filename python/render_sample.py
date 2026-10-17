@@ -7,8 +7,13 @@ libaxr_runtime.dylib) を ctypes でロードし、テンプレートJSON + デ�
 から PDF を1本生成するだけの例です。ビルドは不要です。対応プラット
 フォーム向けのライブラリは `native/<rid>/` に同梱されています。
 
-実行:
+実行（未アクティベート。出力PDFにウォーターマークが入ります）:
     python render_sample.py
+
+実行（ライセンスキーでアクティベートしてから生成。有効なDESIGNERPRO
+キーならウォーターマークが消えます）:
+    ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
+        python render_sample.py
 
 同梱されていないプラットフォーム（`native/` 配下を参照）の場合は、
 環境変数 ACR_NATIVE_LIB にネイティブライブラリのフルパスを指定して
@@ -78,6 +83,11 @@ def load_library() -> ctypes.CDLL:
 
     lib.acr_license_check.restype = ctypes.c_int
 
+    lib.acr_license_activate.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
+    lib.acr_license_activate.restype = ctypes.c_int
+
+    lib.acr_license_last_message.restype = ctypes.c_char_p
+
     lib.acr_render_pdf.argtypes = [
         ctypes.c_char_p,  # template_json
         ctypes.c_char_p,  # data_json
@@ -98,9 +108,21 @@ def main() -> int:
     lib = load_library()
 
     version = lib.acr_version().decode("ascii")
-    tier = lib.acr_license_check()  # 2=DESIGNERPRO / 1=DESIGNER / 0=未認証(ウォーターマーク付き)
     print(f"axr_runtime version: {version}")
+
+    email = os.environ.get("ACR_LICENSE_EMAIL")
+    key = os.environ.get("ACR_LICENSE_KEY")
+    if email and key:
+        ok = lib.acr_license_activate(email.encode("utf-8"), key.encode("utf-8"))
+        message = lib.acr_license_last_message().decode("utf-8", errors="replace")
+        print(f"activation: {'success' if ok else 'failed'} ({message})")
+    else:
+        print("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)")
+
+    tier = lib.acr_license_check()  # 2=DESIGNERPRO / 1=DESIGNER / 0=未認証(ウォーターマーク付き)
+    watermark = tier < 2
     print(f"license tier: {tier} (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)")
+    print(f"watermark: {'yes' if watermark else 'no'}")
 
     template_json = (COMMON_DIR / "template.json").read_text(encoding="utf-8")
     data_json = (COMMON_DIR / "data.json").read_text(encoding="utf-8")
