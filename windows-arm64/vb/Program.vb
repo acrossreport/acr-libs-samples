@@ -1,7 +1,8 @@
 ' axr_runtime（ACRのネイティブ共有ライブラリ、Windows ARM64版）を
 ' VB.NET から呼び出す最小サンプル。ビルドは不要です。
 '
-' 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
+' 実行（未アクティベート。出力PDFにウォーターマークが入ります。
+' output.pdf を開いて確認してください）:
 '     cd windows-arm64/vb
 '     dotnet run
 '
@@ -19,14 +20,6 @@ Module Native
     Private Const LibName As String = "axr_runtime"
 
     <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
-    Public Function acr_version() As IntPtr
-    End Function
-
-    <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
-    Public Function acr_license_check() As Integer
-    End Function
-
-    <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
     Public Function acr_license_activate(
         <MarshalAs(UnmanagedType.LPUTF8Str)> email As String,
         <MarshalAs(UnmanagedType.LPUTF8Str)> key As String) As Integer
@@ -34,12 +27,6 @@ Module Native
 
     <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
     Public Function acr_license_last_message() As IntPtr
-    End Function
-
-    <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
-    Public Function acr_get_page_count(
-        <MarshalAs(UnmanagedType.LPUTF8Str)> templateJson As String,
-        <MarshalAs(UnmanagedType.LPUTF8Str)> dataJson As String) As Integer
     End Function
 
     <DllImport(LibName, CallingConvention:=CallingConvention.Cdecl)>
@@ -78,9 +65,6 @@ Module Program
     Function Main() As Integer
         RegisterResolver()
 
-        Dim version As String = Marshal.PtrToStringUTF8(Native.acr_version())
-        Console.WriteLine($"axr_runtime version: {version}")
-
         Dim email As String = Environment.GetEnvironmentVariable("ACR_LICENSE_EMAIL")
         Dim key As String = Environment.GetEnvironmentVariable("ACR_LICENSE_KEY")
         If Not String.IsNullOrEmpty(email) AndAlso Not String.IsNullOrEmpty(key) Then
@@ -91,22 +75,10 @@ Module Program
             Console.WriteLine("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)")
         End If
 
-        Dim tier As Integer = Native.acr_license_check()
-        Dim watermark As Boolean = (tier < 2)
-        Console.WriteLine($"license tier: {tier} (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)")
-        Console.WriteLine($"watermark: {If(watermark, "yes", "no")}")
-
         Dim sampleDir As String = AppContext.BaseDirectory
         Dim commonDir As String = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", "..", "common"))
         Dim templateJson As String = File.ReadAllText(Path.Combine(commonDir, "template.json"), Encoding.UTF8)
         Dim dataJson As String = File.ReadAllText(Path.Combine(commonDir, "data.json"), Encoding.UTF8)
-
-        Dim pageCount As Integer = Native.acr_get_page_count(templateJson, dataJson)
-        Console.WriteLine($"page count: {pageCount}")
-        If pageCount < 0 Then
-            Console.Error.WriteLine("ERROR: failed to parse template/data JSON")
-            Return 1
-        End If
 
         Dim outLen As Integer
         Dim bufPtr As IntPtr = Native.acr_render_pdf(templateJson, dataJson, outLen)
@@ -121,6 +93,7 @@ Module Program
             Dim outPath As String = Path.Combine(AppContext.BaseDirectory, "output.pdf")
             File.WriteAllBytes(outPath, pdfBytes)
             Console.WriteLine($"wrote {pdfBytes.Length} bytes -> {outPath}")
+            Console.WriteLine("output.pdf を開いて、ウォーターマークの有無を確認してください。")
         Finally
             Native.acr_free_buffer(bufPtr, outLen)
         End Try

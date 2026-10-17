@@ -13,15 +13,9 @@ public interface AcrRuntime extends Library {
 
     AcrRuntime INSTANCE = Native.load("axr_runtime", AcrRuntime.class);
 
-    Pointer acr_version();
-
-    int acr_license_check();
-
     int acr_license_activate(String email, String key);
 
     Pointer acr_license_last_message();
-
-    int acr_get_page_count(String templateJson, String dataJson);
 
     Pointer acr_render_pdf(String templateJson, String dataJson, IntByReference outLen);
 

@@ -2,7 +2,8 @@
 axr_runtime（ACRのネイティブ共有ライブラリ、Linux ARM64版）を Python
 から呼び出す最小サンプル。ビルドは不要です。
 
-実行（未アクティベート。出力PDFにウォーターマークが入ります）:
+実行（未アクティベート。出力PDFにウォーターマークが入ります。
+output.pdf を開いて確認してください）:
     python render_sample.py
 
 実行（ライセンスキーでアクティベートしてから生成。有効なDESIGNERPRO
@@ -28,10 +29,6 @@ def load_library() -> ctypes.CDLL:
         raise FileNotFoundError(f"native library not found: {lib_path}")
     lib = ctypes.CDLL(str(lib_path))
 
-    lib.acr_version.restype = ctypes.c_char_p
-
-    lib.acr_license_check.restype = ctypes.c_int
-
     lib.acr_license_activate.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
     lib.acr_license_activate.restype = ctypes.c_int
 
@@ -44,9 +41,6 @@ def load_library() -> ctypes.CDLL:
     ]
     lib.acr_render_pdf.restype = ctypes.POINTER(ctypes.c_ubyte)
 
-    lib.acr_get_page_count.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
-    lib.acr_get_page_count.restype = ctypes.c_int
-
     lib.acr_free_buffer.argtypes = [ctypes.POINTER(ctypes.c_ubyte), ctypes.c_int]
     lib.acr_free_buffer.restype = None
 
@@ -55,9 +49,6 @@ def load_library() -> ctypes.CDLL:
 
 def main() -> int:
     lib = load_library()
-
-    version = lib.acr_version().decode("ascii")
-    print(f"axr_runtime version: {version}")
 
     email = os.environ.get("ACR_LICENSE_EMAIL")
     key = os.environ.get("ACR_LICENSE_KEY")
@@ -68,22 +59,11 @@ def main() -> int:
     else:
         print("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)")
 
-    tier = lib.acr_license_check()  # 2=DESIGNERPRO / 1=DESIGNER / 0=未認証(ウォーターマーク付き)
-    watermark = tier < 2
-    print(f"license tier: {tier} (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)")
-    print(f"watermark: {'yes' if watermark else 'no'}")
-
     template_json = (COMMON_DIR / "template.json").read_text(encoding="utf-8")
     data_json = (COMMON_DIR / "data.json").read_text(encoding="utf-8")
 
     template_bytes = template_json.encode("utf-8")
     data_bytes = data_json.encode("utf-8")
-
-    page_count = lib.acr_get_page_count(template_bytes, data_bytes)
-    print(f"page count: {page_count}")
-    if page_count < 0:
-        print("ERROR: failed to parse template/data JSON", file=sys.stderr)
-        return 1
 
     out_len = ctypes.c_int(0)
     buf_ptr = lib.acr_render_pdf(template_bytes, data_bytes, ctypes.byref(out_len))
@@ -96,6 +76,7 @@ def main() -> int:
         out_path = SAMPLE_DIR / "output.pdf"
         out_path.write_bytes(pdf_bytes)
         print(f"wrote {len(pdf_bytes)} bytes -> {out_path}")
+        print("output.pdf を開いて、ウォーターマークの有無を確認してください。")
     finally:
         lib.acr_free_buffer(buf_ptr, out_len)
 

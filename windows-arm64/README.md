@@ -13,7 +13,7 @@ python render_sample.py
 
 ## 2. C# (.NET, P/Invoke)
 
-.NET 8 SDK が必要です。
+.NET 10 SDK が必要です。
 
 ```bash
 cd csharp
@@ -22,7 +22,7 @@ dotnet run
 
 ## 3. VB.NET (.NET, P/Invoke)
 
-.NET 8 SDK が必要です。
+.NET 10 SDK が必要です。
 
 ```bash
 cd vb
@@ -54,6 +54,7 @@ ARM64 Windows ではエミュレーションで動いてしまい `axr_runtime.d
 
 未アクティベートで実行すると出力PDFにウォーターマークが入ります。
 ライセンスキーがある場合は、アクティベートしてから実行してください。
+ウォーターマークの有無は `output.pdf` を開いて確認してください。
 
 ```bash
 # cmd.exe の場合

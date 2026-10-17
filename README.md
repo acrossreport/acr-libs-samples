@@ -47,45 +47,37 @@ Windows x64 / macOS / Linux x64 向けのフォルダは、ビルドでき次第
 
 ## 公開しているAPI
 
+このサンプルが使うのは次の最小限だけです。
+
 | 関数 | 説明 |
 |---|---|
-| `acr_version()` | ライブラリのバージョン文字列を返す |
-| `acr_license_check()` | ローカルキャッシュのライセンス状態を返す（0=未認証/ウォーターマーク付き, 1=DESIGNER, 2=DESIGNERPRO） |
 | `acr_license_activate(email, key)` | ライセンスサーバーに問い合わせて認証（ネットワーク必須） |
-| `acr_get_page_count(templateJson, dataJson)` | レンダリング前にページ数だけ取得 |
+| `acr_license_last_message()` | 直前のアクティベーション結果メッセージを返す |
 | `acr_render_pdf(templateJson, dataJson, &outLen)` | PDFバイト列を生成 |
-| `acr_render_page_png(templateJson, dataJson, pageIndex, &outLen)` | 指定ページのPNGバイト列を生成 |
-| `acr_render_zip(templateJson, dataJson, &outLen)` | 全ページPNG入りZIP（ACR-PNG-PACKAGE）を生成 |
 | `acr_free_buffer(ptr, len)` | 上記が返したバッファを解放（呼び出し側は必ず呼ぶこと） |
 
-各サンプルはこのうち `acr_version` / `acr_license_check` /
-`acr_license_activate` / `acr_license_last_message` /
-`acr_get_page_count` / `acr_render_pdf` / `acr_free_buffer` を使い、
-`common/template.json` + `common/data.json` から `output.pdf` を1本
-生成するだけの、最小構成になっています。
+PDFの代わりにZIP（全ページPNG入り、ACR-PNG-PACKAGE形式）が欲しい場合は、
+同じ引数の `acr_render_zip(templateJson, dataJson, &outLen)` に差し替える
+だけです（このサンプルでは呼んでいません）。
 
 ## ライセンスとウォーターマーク
 
 **アクティベートしていない状態（既定）では、出力PDFにウォーターマークが
-入ります。** `acr_license_check()` の戻り値（0=未認証, 1=DESIGNER,
-2=DESIGNERPRO）に応じて `acr_render_pdf` が自動的に付加するもので、
-DESIGNERPRO ライセンスでアクティベートした場合のみウォーターマークが
-消えます。
+入ります。** DESIGNERPRO ライセンスでアクティベートした場合のみ
+ウォーターマークが消えます。
 
 各サンプルは、環境変数 `ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY` の両方が
 設定されている場合のみ `acr_license_activate()` を呼び出します（未設定
 なら "activation: skipped" と表示してそのまま未認証状態で進みます）。
-実行結果には `activation: success/failed/skipped`・`license tier`・
-`watermark: yes/no` が毎回表示されるので、アクティベーションの有無で
-出力が変わることを確認できます。
+**ウォーターマークの有無は、生成された `output.pdf` を実際に開いて
+確認してください。**
 
 ## 注意点（組み込み時に意識すること）
 
-- `acr_render_pdf` / `acr_render_page_png` / `acr_render_zip` が返す
-  バッファはライブラリ側が確保したメモリです。使い終わったら必ず
-  `acr_free_buffer(ptr, len)` を呼んでください。呼ばないとメモリ
-  リークします（プロセス終了時にOSが回収しますが、長時間稼働する
-  サーバープロセスに組み込む場合は必須です）。
+- `acr_render_pdf`（および `acr_render_zip`）が返すバッファはライブラリ
+  側が確保したメモリです。使い終わったら必ず `acr_free_buffer(ptr, len)`
+  を呼んでください。呼ばないとメモリリークします（プロセス終了時にOSが
+  回収しますが、長時間稼働するサーバープロセスに組み込む場合は必須です）。
 - テンプレートJSONは最低限、`ACR.Report.Sections.Section` の配列に
   **「Detail」という名前に正規化されるセクションを1つだけ**含む必要が
   あります。`common/template.json` はその最小形です。

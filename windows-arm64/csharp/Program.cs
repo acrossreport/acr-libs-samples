@@ -1,7 +1,8 @@
 // axr_runtime（ACRのネイティブ共有ライブラリ、Windows ARM64版）を
 // C# / .NET から呼び出す最小サンプル。ビルドは不要です。
 //
-// 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
+// 実行（未アクティベート。出力PDFにウォーターマークが入ります。
+// output.pdf を開いて確認してください）:
 //     cd windows-arm64/csharp
 //     dotnet run
 //
@@ -22,23 +23,12 @@ internal static class Native
     private const string LibName = "axr_runtime";
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern IntPtr acr_version();
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int acr_license_check();
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int acr_license_activate(
         [MarshalAs(UnmanagedType.LPUTF8Str)] string email,
         [MarshalAs(UnmanagedType.LPUTF8Str)] string key);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr acr_license_last_message();
-
-    [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int acr_get_page_count(
-        [MarshalAs(UnmanagedType.LPUTF8Str)] string templateJson,
-        [MarshalAs(UnmanagedType.LPUTF8Str)] string dataJson);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr acr_render_pdf(
@@ -75,9 +65,6 @@ internal static class Program
     {
         RegisterResolver();
 
-        var version = Marshal.PtrToStringUTF8(Native.acr_version());
-        Console.WriteLine($"axr_runtime version: {version}");
-
         var email = Environment.GetEnvironmentVariable("ACR_LICENSE_EMAIL");
         var key = Environment.GetEnvironmentVariable("ACR_LICENSE_KEY");
         if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(key))
@@ -91,23 +78,10 @@ internal static class Program
             Console.WriteLine("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)");
         }
 
-        var tier = Native.acr_license_check();
-        var watermark = tier < 2;
-        Console.WriteLine($"license tier: {tier} (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)");
-        Console.WriteLine($"watermark: {(watermark ? "yes" : "no")}");
-
         var sampleDir = AppContext.BaseDirectory;
         var commonDir = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", "..", "common"));
         var templateJson = File.ReadAllText(Path.Combine(commonDir, "template.json"), Encoding.UTF8);
         var dataJson = File.ReadAllText(Path.Combine(commonDir, "data.json"), Encoding.UTF8);
-
-        var pageCount = Native.acr_get_page_count(templateJson, dataJson);
-        Console.WriteLine($"page count: {pageCount}");
-        if (pageCount < 0)
-        {
-            Console.Error.WriteLine("ERROR: failed to parse template/data JSON");
-            return 1;
-        }
 
         var bufPtr = Native.acr_render_pdf(templateJson, dataJson, out var outLen);
         if (bufPtr == IntPtr.Zero)
@@ -123,6 +97,7 @@ internal static class Program
             var outPath = Path.Combine(AppContext.BaseDirectory, "output.pdf");
             File.WriteAllBytes(outPath, pdfBytes);
             Console.WriteLine($"wrote {pdfBytes.Length} bytes -> {outPath}");
+            Console.WriteLine("output.pdf を開いて、ウォーターマークの有無を確認してください。");
         }
         finally
         {

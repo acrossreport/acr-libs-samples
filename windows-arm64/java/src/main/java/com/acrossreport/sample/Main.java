@@ -13,7 +13,8 @@ import java.nio.file.Paths;
  * axr_runtime（ACRのネイティブ共有ライブラリ、Windows ARM64版）を Java
  * から呼び出す最小サンプル。ビルドは不要です。
  *
- * 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
+ * 実行（未アクティベート。出力PDFにウォーターマークが入ります。
+ * output.pdf を開いて確認してください）:
  *   cd windows-arm64/java
  *   mvn package
  *   java -jar target/acr-libs-sample-jar-with-dependencies.jar
@@ -47,9 +48,6 @@ public final class Main {
 
         AcrRuntime lib = AcrRuntime.INSTANCE;
 
-        String version = lib.acr_version().getString(0, "UTF-8");
-        System.out.println("axr_runtime version: " + version);
-
         String email = System.getenv("ACR_LICENSE_EMAIL");
         String key = System.getenv("ACR_LICENSE_KEY");
         if (email != null && !email.isEmpty() && key != null && !key.isEmpty()) {
@@ -60,21 +58,9 @@ public final class Main {
             System.out.println("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)");
         }
 
-        int tier = lib.acr_license_check();
-        boolean watermark = tier < 2;
-        System.out.println("license tier: " + tier + " (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)");
-        System.out.println("watermark: " + (watermark ? "yes" : "no"));
-
         Path commonDir = platformRoot.resolve("common");
         String templateJson = Files.readString(commonDir.resolve("template.json"), StandardCharsets.UTF_8);
         String dataJson = Files.readString(commonDir.resolve("data.json"), StandardCharsets.UTF_8);
-
-        int pageCount = lib.acr_get_page_count(templateJson, dataJson);
-        System.out.println("page count: " + pageCount);
-        if (pageCount < 0) {
-            System.err.println("ERROR: failed to parse template/data JSON");
-            System.exit(1);
-        }
 
         IntByReference outLen = new IntByReference();
         Pointer bufPtr = lib.acr_render_pdf(templateJson, dataJson, outLen);
@@ -88,6 +74,7 @@ public final class Main {
             Path outPath = sampleDir.resolve("output.pdf");
             Files.write(outPath, pdfBytes);
             System.out.println("wrote " + pdfBytes.length + " bytes -> " + outPath);
+            System.out.println("output.pdf を開いて、ウォーターマークの有無を確認してください。");
         } finally {
             lib.acr_free_buffer(bufPtr, outLen.getValue());
         }

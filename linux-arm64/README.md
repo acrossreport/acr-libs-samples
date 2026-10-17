@@ -13,8 +13,8 @@ python3 render_sample.py
 
 ## 2. C# (.NET, P/Invoke)
 
-.NET 8 SDK が必要です。Ubuntu/Debian なら
-`sudo apt install dotnet-sdk-8.0` で入ります。
+.NET 10 SDK が必要です。Ubuntu/Debian なら
+`sudo apt install dotnet-sdk-10.0` で入ります。
 
 ```bash
 cd csharp
@@ -23,7 +23,7 @@ dotnet run
 
 ## 3. VB.NET (.NET, P/Invoke)
 
-.NET 8 SDK が必要です。
+.NET 10 SDK が必要です。
 
 ```bash
 cd vb
@@ -50,6 +50,7 @@ Mavenがまとめて入ります。
 
 未アクティベートで実行すると出力PDFにウォーターマークが入ります。
 ライセンスキーがある場合は、アクティベートしてから実行してください。
+ウォーターマークの有無は `output.pdf` を開いて確認してください。
 
 ```bash
 ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
