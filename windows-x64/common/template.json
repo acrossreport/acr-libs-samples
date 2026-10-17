@@ -1,0 +1,41 @@
+{
+  "ACR": {
+    "Report": {
+      "PageSettings": {
+        "PaperWidth": 11906,
+        "PaperHeight": 16838,
+        "Orientation": 1,
+        "LeftMargin": 0,
+        "TopMargin": 0,
+        "RightMargin": 0,
+        "BottomMargin": 0
+      },
+      "Sections": {
+        "Section": [
+          {
+            "Name": "reportheader",
+            "Type": "ACR.ReportHeader",
+            "Height": 300,
+            "Control": [
+              {
+                "Name": "lbl1",
+                "Type": "ACR.Label",
+                "Text": "Hello from ACR DLL!",
+                "Left": 0,
+                "Top": 0,
+                "Width": 4000,
+                "Height": 300,
+                "Style": "font-size: 12pt"
+              }
+            ]
+          },
+          {
+            "Name": "detail",
+            "Type": "ACR.Detail",
+            "Height": 0
+          }
+        ]
+      }
+    }
+  }
+}

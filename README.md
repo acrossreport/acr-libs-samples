@@ -12,21 +12,28 @@ C FFI を、C# / VB.NET / Python / Java の4言語から直接呼び出す**最�
 
 ```
 acr-libs-samples/
-├── windows-arm64/   # Windows (ARM64)
+├── windows-x64/     # Windows (x64)
 │   ├── native/axr_runtime.dll
 │   ├── common/      # テンプレートJSON / データJSON
 │   ├── python/
 │   ├── csharp/
 │   ├── vb/
 │   └── java/
-├── linux-arm64/     # Linux (ARM64)
-│   ├── native/libaxr_runtime.so
+├── windows-arm64/   # Windows (ARM64)
+│   ├── native/axr_runtime.dll
 │   ├── common/
 │   ├── python/
 │   ├── csharp/
 │   ├── vb/
 │   └── java/
 ├── linux-x64/       # Linux (x64)
+│   ├── native/libaxr_runtime.so
+│   ├── common/
+│   ├── python/
+│   ├── csharp/
+│   ├── vb/
+│   └── java/
+├── linux-arm64/     # Linux (ARM64)
 │   ├── native/libaxr_runtime.so
 │   ├── common/
 │   ├── python/
@@ -57,13 +64,13 @@ acr-libs-samples/
 
 | フォルダ | 状態 |
 |---|---|
+| `windows-x64/` | ✅ 動作確認済み（Python / C# / VB.NET。Javaはコードのみ、未実行） |
 | `windows-arm64/` | ✅ 動作確認済み（4言語とも） |
 | `linux-arm64/` | ✅ 動作確認済み（4言語とも） |
 | `linux-x64/` | ✅ 動作確認済み（4言語とも） |
 | `macos-arm64/` | ✅ 動作確認済み（4言語とも） |
 | `macos-x64/` | ✅ 動作確認済み（4言語とも） |
 
-Windows x64 向けのフォルダは、ビルドでき次第追加します。
 手元にそのプラットフォームが無い場合は、環境変数 `ACR_NATIVE_LIB` で
 別途用意したライブラリの場所を指定すれば、同じサンプルコードを流用
 できます（Python/C#/VB.NET はライブラリファイルへのフルパス、Java は
