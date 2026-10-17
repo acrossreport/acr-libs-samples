@@ -26,7 +26,14 @@ acr-libs-samples/
 │   ├── csharp/
 │   ├── vb/
 │   └── java/
-└── macos-arm64/     # macOS (Apple Silicon / arm64)
+├── macos-arm64/     # macOS (Apple Silicon / arm64)
+│   ├── native/libaxr_runtime.dylib
+│   ├── common/
+│   ├── python/
+│   ├── csharp/
+│   ├── vb/
+│   └── java/
+└── macos-x64/       # macOS (Intel / x64)
     ├── native/libaxr_runtime.dylib
     ├── common/
     ├── python/
@@ -46,8 +53,9 @@ acr-libs-samples/
 | `windows-arm64/` | ✅ 動作確認済み（4言語とも） |
 | `linux-arm64/` | ✅ 動作確認済み（4言語とも） |
 | `macos-arm64/` | ✅ 動作確認済み（4言語とも） |
+| `macos-x64/` | ✅ 動作確認済み（4言語とも） |
 
-Windows x64 / macOS x64 / Linux x64 向けのフォルダは、ビルドでき次第追加します。
+Windows x64 / Linux x64 向けのフォルダは、ビルドでき次第追加します。
 手元にそのプラットフォームが無い場合は、環境変数 `ACR_NATIVE_LIB` で
 別途用意したライブラリの場所を指定すれば、同じサンプルコードを流用
 できます（Python/C#/VB.NET はライブラリファイルへのフルパス、Java は
