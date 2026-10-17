@@ -1,9 +1,6 @@
 // axr_runtime（ACRのネイティブ共有ライブラリ）を C# / .NET から呼び出す
-// 最小サンプル。
-//
-// 事前準備:
-//     cd Acr
-//     cargo build --release -p acr_dll
+// 最小サンプル。ビルドは不要です。対応プラットフォーム向けのライブラリは
+// native/<rid>/ に同梱されています。
 //
 // 実行:
 //     cd acr-libs-samples/csharp
@@ -53,17 +50,24 @@ internal static class Program
         return "libaxr_runtime.so";
     }
 
+    private static string RuntimeIdentifier()
+    {
+        var isArm64 = RuntimeInformation.OSArchitecture == Architecture.Arm64;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return isArm64 ? "win-arm64" : "win-x64";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return isArm64 ? "osx-arm64" : "osx-x64";
+        return isArm64 ? "linux-arm64" : "linux-x64";
+    }
+
     private static void RegisterResolver()
     {
-        // 既定では acr-libs-samples の隣にある "Acr" ワークスペースの
-        // target/release からロードする。ACR_WORKSPACE_DIR 環境変数で
-        // Acr ワークスペースのルートを上書きできる。
+        // 同梱の native/<rid>/ からロードする（ビルド不要）。
+        // ACR_NATIVE_LIB 環境変数が設定されていれば、そのフルパスを優先する。
         var sampleDir = AppContext.BaseDirectory;
-        // bin/Debug/net8.0 から見て acr-libs-samples の親(ACR_DEV)は5階層上。
-        var samplesParent = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", "..", ".."));
-        var acrWorkspaceRoot = Environment.GetEnvironmentVariable("ACR_WORKSPACE_DIR")
-            ?? Path.Combine(samplesParent, "Acr");
-        var candidate = Path.Combine(acrWorkspaceRoot, "target", "release", NativeLibraryFileName());
+        // bin/Debug/net8.0 から見て acr-libs-samples (このリポジトリのルート) は4階層上。
+        var samplesRoot = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", ".."));
+        var fileName = NativeLibraryFileName();
+        var candidate = Environment.GetEnvironmentVariable("ACR_NATIVE_LIB")
+            ?? Path.Combine(samplesRoot, "native", RuntimeIdentifier(), fileName);
 
         NativeLibrary.SetDllImportResolver(typeof(Program).Assembly, (name, assembly, searchPath) =>
         {
@@ -72,8 +76,10 @@ internal static class Program
             {
                 return NativeLibrary.Load(candidate);
             }
-            // フォールバック: 通常のライブラリ検索パスに任せる
-            return NativeLibrary.Load(name, assembly, searchPath);
+            throw new FileNotFoundException(
+                $"native library not found for this platform ({RuntimeIdentifier()}): {candidate}\n" +
+                "同梱されているプラットフォームは native/ ディレクトリを確認してください。" +
+                "別の場所にあるライブラリを使う場合は環境変数 ACR_NATIVE_LIB でフルパスを指定してください。");
         });
     }
 

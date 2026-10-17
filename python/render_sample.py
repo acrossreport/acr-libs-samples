@@ -4,19 +4,15 @@ axr_runtime（ACRのネイティブ共有ライブラリ）を Python から呼�
 
 ビルド済みのネイティブライブラリ (axr_runtime.dll / libaxr_runtime.so /
 libaxr_runtime.dylib) を ctypes でロードし、テンプレートJSON + データJSON
-から PDF を1本生成するだけの例です。
-
-事前準備:
-    cd ../Acr   (Acr ワークスペースのルート。既定ではこのサンプルの
-                 一つ上の階層にある "Acr" フォルダを想定しています)
-    cargo build --release -p acr_dll
+から PDF を1本生成するだけの例です。ビルドは不要です。対応プラット
+フォーム向けのライブラリは `native/<rid>/` に同梱されています。
 
 実行:
     python render_sample.py
 
-Acr ワークスペースが既定の場所(このサンプルの隣の "Acr" フォルダ)に無い
-場合は、環境変数 ACR_WORKSPACE_DIR で Acr ワークスペースのルートを指定
-してください。
+同梱されていないプラットフォーム（`native/` 配下を参照）の場合は、
+環境変数 ACR_NATIVE_LIB にネイティブライブラリのフルパスを指定して
+ください。
 """
 
 import ctypes
@@ -28,30 +24,51 @@ import sys
 SAMPLE_DIR = pathlib.Path(__file__).resolve().parent
 SAMPLES_ROOT = SAMPLE_DIR.parent
 COMMON_DIR = SAMPLES_ROOT / "common"
-# acr_dll/Cargo.toml の [lib] name = "axr_runtime" が生成物のベース名。
-# 既定では acr-libs-samples の隣にある "Acr" ワークスペースを見る。
-# target-dir は .cargo/config.toml で変わっていなければ target/release。
-ACR_WORKSPACE_ROOT = pathlib.Path(
-    os.environ.get("ACR_WORKSPACE_DIR", str(SAMPLES_ROOT.parent / "Acr"))
-)
-TARGET_RELEASE = ACR_WORKSPACE_ROOT / "target" / "release"
+NATIVE_ROOT = SAMPLES_ROOT / "native"
+
+
+def native_lib_filename() -> str:
+    system = platform.system()
+    if system == "Windows":
+        return "axr_runtime.dll"
+    elif system == "Darwin":
+        return "libaxr_runtime.dylib"
+    else:
+        return "libaxr_runtime.so"
+
+
+def runtime_identifier() -> str:
+    system = platform.system()
+    machine = platform.machine().lower()
+    is_arm64 = machine in ("arm64", "aarch64")
+    if system == "Windows":
+        return "win-arm64" if is_arm64 else "win-x64"
+    elif system == "Darwin":
+        return "osx-arm64" if is_arm64 else "osx-x64"
+    else:
+        return "linux-arm64" if is_arm64 else "linux-x64"
 
 
 def native_lib_path() -> pathlib.Path:
-    system = platform.system()
-    if system == "Windows":
-        name = "axr_runtime.dll"
-    elif system == "Darwin":
-        name = "libaxr_runtime.dylib"
-    else:
-        name = "libaxr_runtime.so"
-    path = TARGET_RELEASE / name
-    if not path.exists():
-        raise FileNotFoundError(
-            f"native library not found: {path}\n"
-            "先に `cargo build --release -p acr_dll` を実行してください。"
-        )
-    return path
+    override = os.environ.get("ACR_NATIVE_LIB")
+    if override:
+        path = pathlib.Path(override)
+        if not path.exists():
+            raise FileNotFoundError(f"ACR_NATIVE_LIB で指定されたファイルが見つかりません: {path}")
+        return path
+
+    rid = runtime_identifier()
+    name = native_lib_filename()
+    bundled = NATIVE_ROOT / rid / name
+    if bundled.exists():
+        return bundled
+
+    raise FileNotFoundError(
+        f"native library not found for this platform ({rid}): {bundled}\n"
+        f"同梱されているプラットフォームは native/ ディレクトリを確認してください。\n"
+        "別の場所にあるライブラリを使う場合は環境変数 ACR_NATIVE_LIB で"
+        "フルパスを指定してください。"
+    )
 
 
 def load_library() -> ctypes.CDLL:

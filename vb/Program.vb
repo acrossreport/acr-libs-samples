@@ -1,9 +1,6 @@
 ' axr_runtime（ACRのネイティブ共有ライブラリ）を VB.NET から呼び出す
-' 最小サンプル。
-'
-' 事前準備:
-'     cd Acr
-'     cargo build --release -p acr_dll
+' 最小サンプル。ビルドは不要です。対応プラットフォーム向けのライブラリは
+' native/<rid>/ に同梱されています。
 '
 ' 実行:
 '     cd acr-libs-samples/vb
@@ -55,18 +52,27 @@ Module Program
         End If
     End Function
 
-    Private Sub RegisterResolver()
-        ' 既定では acr-libs-samples の隣にある "Acr" ワークスペースの
-        ' target/release からロードする。ACR_WORKSPACE_DIR 環境変数で
-        ' Acr ワークスペースのルートを上書きできる。
-        Dim sampleDir As String = AppContext.BaseDirectory
-        ' bin/Debug/net8.0 から見て acr-libs-samples の親(ACR_DEV)は5階層上。
-        Dim samplesParent As String = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", "..", ".."))
-        Dim acrWorkspaceRoot As String = Environment.GetEnvironmentVariable("ACR_WORKSPACE_DIR")
-        If String.IsNullOrEmpty(acrWorkspaceRoot) Then
-            acrWorkspaceRoot = Path.Combine(samplesParent, "Acr")
+    Private Function RuntimeIdentifier() As String
+        Dim isArm64 As Boolean = (RuntimeInformation.OSArchitecture = Architecture.Arm64)
+        If RuntimeInformation.IsOSPlatform(OSPlatform.Windows) Then
+            Return If(isArm64, "win-arm64", "win-x64")
+        ElseIf RuntimeInformation.IsOSPlatform(OSPlatform.OSX) Then
+            Return If(isArm64, "osx-arm64", "osx-x64")
+        Else
+            Return If(isArm64, "linux-arm64", "linux-x64")
         End If
-        Dim candidate As String = Path.Combine(acrWorkspaceRoot, "target", "release", NativeLibraryFileName())
+    End Function
+
+    Private Sub RegisterResolver()
+        ' 同梱の native/<rid>/ からロードする（ビルド不要）。
+        ' ACR_NATIVE_LIB 環境変数が設定されていれば、そのフルパスを優先する。
+        Dim sampleDir As String = AppContext.BaseDirectory
+        ' bin/Debug/net8.0 から見て acr-libs-samples (このリポジトリのルート) は4階層上。
+        Dim samplesRoot As String = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", ".."))
+        Dim candidate As String = Environment.GetEnvironmentVariable("ACR_NATIVE_LIB")
+        If String.IsNullOrEmpty(candidate) Then
+            candidate = Path.Combine(samplesRoot, "native", RuntimeIdentifier(), NativeLibraryFileName())
+        End If
 
         NativeLibrary.SetDllImportResolver(GetType(Program).Assembly,
             Function(name As String, assembly As Reflection.Assembly, searchPath As DllImportSearchPath?) As IntPtr
@@ -74,7 +80,10 @@ Module Program
                 If File.Exists(candidate) Then
                     Return NativeLibrary.Load(candidate)
                 End If
-                Return NativeLibrary.Load(name, assembly, searchPath)
+                Throw New FileNotFoundException(
+                    $"native library not found for this platform ({RuntimeIdentifier()}): {candidate}" & vbCrLf &
+                    "同梱されているプラットフォームは native/ ディレクトリを確認してください。" &
+                    "別の場所にあるライブラリを使う場合は環境変数 ACR_NATIVE_LIB でフルパスを指定してください。")
             End Function)
     End Sub
 
@@ -87,7 +96,7 @@ Module Program
         Console.WriteLine($"license tier: {tier} (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)")
 
         Dim sampleDir As String = AppContext.BaseDirectory
-        ' bin/Debug/net8.0 から見て acr-libs-samples/common は4階層上 + common。
+        ' bin/Debug/net8.0 から見て acr-libs-samples の common/ は4階層上。
         Dim commonDir As String = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", "..", "common"))
         Dim templateJson As String = File.ReadAllText(Path.Combine(commonDir, "template.json"), Encoding.UTF8)
         Dim dataJson As String = File.ReadAllText(Path.Combine(commonDir, "data.json"), Encoding.UTF8)

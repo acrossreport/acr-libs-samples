@@ -3,34 +3,45 @@
 `axr_runtime`（Windowsでは `axr_runtime.dll`、macOSでは
 `libaxr_runtime.dylib`、Linuxでは `libaxr_runtime.so` というファイル名に
 なります）は、Avalonia デザイナー向けに作られた C ABI のネイティブ共有
-ライブラリです（Rust側のクレート名は `acr_dll`）。`@acrossreport/acr-node`
-（napi-rs 製 Node.js アドオン）が Node.js から ACR を組み込むサンプルで
-あるのに対し、ここでは**同じ C FFI を、C# / VB.NET / Python / Java の
-4言語から直接呼び出す**最小サンプルを置いています。
+ライブラリです。`@acrossreport/acr-node`（napi-rs 製 Node.js アドオン）が
+Node.js から ACR を組み込むサンプルであるのに対し、ここでは**同じ C FFI
+を、C# / VB.NET / Python / Java の4言語から直接呼び出す**最小サンプルを
+置いています。
 
-Windows / macOS / Linux のどれでも、`axr_runtime` をそのプラットフォーム
-用にビルドすれば同じサンプルコードで動きます（ライブラリの探索ロジックが
-OS ごとのファイル名差を吸収します）。
-
-このフォルダは `Acr`（本体のソース管理リポジトリ）とは別管理です
-（`acr_node_native` が `@acrossreport/acr-node` と別リポジトリに分かれて
-いるのと同じ理由）。既定では `Acr` の**隣**に置くことを想定しています：
+**ビルドは不要です。** 対応プラットフォーム向けのビルド済みライブラリを
+`native/<rid>/` に同梱しています。利用者は `Acr` ソース一式やRustの
+ビルド環境を用意する必要はありません。
 
 ```
-ACR_DEV/
-├── Acr/                 # 本体（axr_runtime のビルド元。target/release/ ができる）
-└── acr-libs-samples/     # このフォルダ
-    ├── common/          # 共通のテンプレートJSON / データJSON
-    ├── python/          # ctypes 版
-    ├── csharp/          # .NET (C#) 版、P/Invoke
-    ├── vb/              # .NET (VB.NET) 版、P/Invoke
-    └── java/            # JNA 版
+acr-libs-samples/
+├── common/          # 共通のテンプレートJSON / データJSON
+├── native/          # ビルド済みネイティブライブラリ（プラットフォーム別）
+│   ├── win-arm64/axr_runtime.dll
+│   └── linux-arm64/libaxr_runtime.so
+├── python/          # ctypes 版
+├── csharp/          # .NET (C#) 版、P/Invoke
+├── vb/              # .NET (VB.NET) 版、P/Invoke
+└── java/            # JNA 版
 ```
 
-`Acr` を別の場所に置いている場合は、各サンプル実行時に環境変数
-`ACR_WORKSPACE_DIR` で `Acr` ワークスペースのルートを指定してください。
+## 対応プラットフォーム（同梱済み）
 
-## 公開している API（Rust側: `acr_dll/src/lib.rs`, `license_ffi.rs`）
+| RID | 状態 |
+|---|---|
+| `win-arm64` | ✅ 同梱済み・動作確認済み |
+| `linux-arm64` | ✅ 同梱済み・動作確認済み |
+| `win-x64` | 未同梱（ビルドでき次第追加予定） |
+| `osx-arm64` / `osx-x64` | 未同梱（ビルドでき次第追加予定） |
+| `linux-x64` | 未同梱（ビルドでき次第追加予定） |
+
+`native/` に無いプラットフォームで動かす場合は、環境変数
+`ACR_NATIVE_LIB` でライブラリの場所を指定してください
+（Python/C#/VB.NET はライブラリファイルへのフルパス、Java は
+ライブラリファイルを含むディレクトリのパス）。ライブラリ自体は
+`Acr` ワークスペース側（このリポジトリの管理者）でビルドして提供します。
+利用者側でRustをビルドする必要はありません。
+
+## 公開しているAPI
 
 | 関数 | 説明 |
 |---|---|
@@ -47,27 +58,6 @@ ACR_DEV/
 `acr_get_page_count` / `acr_render_pdf` / `acr_free_buffer` を使い、
 `common/template.json` + `common/data.json` から `output.pdf` を1本
 生成するだけの、最小構成になっています。
-
-## 0. 事前準備: axr_runtime をビルドする
-
-`Acr` ワークスペースのルートで：
-
-```bash
-cargo build --release -p acr_dll
-```
-
-成功すると `Acr/target/release/` に以下が生成されます（OSごとに名前が
-変わります。拡張子はそのプラットフォームの共有ライブラリ形式です）：
-
-| OS | ファイル名 |
-|---|---|
-| Windows | `axr_runtime.dll` |
-| macOS | `libaxr_runtime.dylib` |
-| Linux | `libaxr_runtime.so` |
-
-各言語サンプルは、このビルド済みファイルを `../Acr/target/release/`
-（既定値。`ACR_WORKSPACE_DIR` で変更可）から直接ロードします（事前に
-コピーする必要はありません）。
 
 ## 1. Python (ctypes)
 
@@ -107,8 +97,8 @@ mvn package
 java -jar target/acr-libs-samples-jar-with-dependencies.jar
 ```
 
-Python / C# / VB.NET / Java すべて、実際に `output.pdf` の生成まで確認
-済みです。
+Python / C# / VB.NET / Java すべて、`native/` 同梱のライブラリから実際に
+`output.pdf` の生成まで確認済みです（Windows ARM64, Linux ARM64(WSL2)）。
 
 ### JDK のインストールについて（プラットフォーム / CPUアーキテクチャ別の注意）
 
@@ -124,11 +114,6 @@ Python / C# / VB.NET / Java すべて、実際に `output.pdf` の生成まで�
 | **Windows ARM64** | **Eclipse Temurin は JDK 17 系に Windows ARM64 ビルドが無い。JDK 21 以降を使うこと**（[Temurin 21 の aarch64_windows 版](https://github.com/adoptium/temurin21-binaries/releases)）。各種パッケージマネージャ経由のインストールはx64版しか無いことが多く、ARM64 Windows ではエミュレーションで動いてしまい `axr_runtime.dll`（ARM64ネイティブ）を読み込めない |
 | macOS (Intel / Apple Silicon) | [Eclipse Temurin](https://adoptium.net/) の `aarch64_mac` / `x64_mac` 版 |
 | Linux (x64 / ARM64) | [Eclipse Temurin](https://adoptium.net/) の `x64_linux` / `aarch64_linux` 版、または各ディストリのパッケージ（Ubuntu/Debianなら `sudo apt install openjdk-21-jdk maven` でJDKとMavenがまとめて入る） |
-
-Ubuntu 24.04 (WSL2, aarch64) で `sudo apt install openjdk-21-jdk maven` →
-Python / Java の両サンプルを実機で動作確認済みです（`libaxr_runtime.so`
-は `cargo build --release -p acr_dll` でそのマシン上でビルドしたもの。
-ARM64 Linux用に別途クロスビルドする必要はありません）。
 
 Maven がパッケージマネージャに無い場合は、
 https://maven.apache.org/download.cgi からバイナリZIPを取得して展開し、
@@ -149,3 +134,18 @@ https://maven.apache.org/download.cgi からバイナリZIPを取得して展開
   **「Detail」という名前に正規化されるセクションを1つだけ**含む必要が
   あります（`acr_core/src/layout/engine.rs` の `assert!` で強制されて
   います）。`common/template.json` はその最小形です。
+
+## （リポジトリ管理者向け）ネイティブライブラリの追加・更新
+
+`native/<rid>/` のライブラリは `Acr` ワークスペース側でビルドして、この
+リポジトリにコピーします。利用者側はビルド不要です。
+
+```bash
+# Acr ワークスペースのルートで
+cargo build --release -p acr_dll
+# 生成物を native/<rid>/ にコピー（例: Windows ARM64）
+cp target/release/axr_runtime.dll ../acr-libs-samples/native/win-arm64/
+```
+
+RID の命名は `.NET` の RID（`win-x64` / `win-arm64` / `osx-x64` /
+`osx-arm64` / `linux-x64` / `linux-arm64`）に合わせています。

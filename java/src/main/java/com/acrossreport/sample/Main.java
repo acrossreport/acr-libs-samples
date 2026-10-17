@@ -11,16 +11,13 @@ import java.nio.file.Paths;
 
 /**
  * axr_runtime（ACRのネイティブ共有ライブラリ）を Java から呼び出す
- * 最小サンプル。
- *
- * 事前準備:
- *   cd Acr
- *   cargo build --release -p acr_dll
+ * 最小サンプル。ビルドは不要です。対応プラットフォーム向けのライブラリは
+ * native/<rid>/ に同梱されています。
  *
  * 実行:
  *   cd acr-libs-samples/java
  *   mvn package
- *   java -jar target/acr-dll-sample-jar-with-dependencies.jar
+ *   java -jar target/acr-libs-samples-jar-with-dependencies.jar
  */
 public final class Main {
 
@@ -38,22 +35,35 @@ public final class Main {
         }
     }
 
+    private static String runtimeIdentifier() {
+        String os = System.getProperty("os.name", "").toLowerCase();
+        String arch = System.getProperty("os.arch", "").toLowerCase();
+        boolean isArm64 = arch.contains("aarch64") || arch.contains("arm64");
+        if (os.contains("win")) {
+            return isArm64 ? "win-arm64" : "win-x64";
+        } else if (os.contains("mac")) {
+            return isArm64 ? "osx-arm64" : "osx-x64";
+        } else {
+            return isArm64 ? "linux-arm64" : "linux-x64";
+        }
+    }
+
     public static void main(String[] args) throws IOException {
-        // JNA にワークスペースの target/release を検索パスとして教える。
-        // 既定では acr-libs-samples の隣にある "Acr" ワークスペースを見る。
-        // ACR_WORKSPACE_DIR 環境変数で Acr ワークスペースのルートを上書き可能。
+        // 同梱の native/<rid>/ を JNA の検索パスとして教える（ビルド不要）。
+        // ACR_NATIVE_LIB 環境変数が設定されていれば、そのディレクトリを優先する。
         Path sampleDir = Paths.get("").toAbsolutePath();
         Path samplesRoot = sampleDir.resolve("..").normalize();
-        String envWorkspace = System.getenv("ACR_WORKSPACE_DIR");
-        Path acrWorkspaceRoot = (envWorkspace != null)
-                ? Paths.get(envWorkspace)
-                : samplesRoot.resolve("..").resolve("Acr").normalize();
-        Path nativeDir = acrWorkspaceRoot.resolve("target").resolve("release");
+        String envNativeLib = System.getenv("ACR_NATIVE_LIB");
+        Path nativeDir = (envNativeLib != null)
+                ? Paths.get(envNativeLib)
+                : samplesRoot.resolve("native").resolve(runtimeIdentifier());
 
         if (!Files.exists(nativeDir.resolve(nativeLibraryFileName()))) {
             System.err.println(
-                    "native library not found: " + nativeDir.resolve(nativeLibraryFileName()) + "\n" +
-                    "先に `cargo build --release -p acr_dll` を実行してください。");
+                    "native library not found for this platform (" + runtimeIdentifier() + "): " +
+                    nativeDir.resolve(nativeLibraryFileName()) + "\n" +
+                    "同梱されているプラットフォームは native/ ディレクトリを確認してください。\n" +
+                    "別の場所にあるライブラリを使う場合は環境変数 ACR_NATIVE_LIB でそのディレクトリを指定してください。");
             System.exit(1);
         }
 
