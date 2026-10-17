@@ -1,41 +1,48 @@
 # axr_runtime 組み込みサンプル (C# / VB.NET / Python / Java)
 
-`axr_runtime`（Windowsでは `axr_runtime.dll`、macOSでは
-`libaxr_runtime.dylib`、Linuxでは `libaxr_runtime.so` というファイル名に
-なります）は、Avalonia デザイナー向けに作られた C ABI のネイティブ共有
-ライブラリです。`@acrossreport/acr-node`（napi-rs 製 Node.js アドオン）が
-Node.js から ACR を組み込むサンプルであるのに対し、ここでは**同じ C FFI
-を、C# / VB.NET / Python / Java の4言語から直接呼び出す**最小サンプルを
-置いています。
+`axr_runtime` は、Avalonia デザイナー向けに作られた C ABI のネイティブ
+共有ライブラリです。`@acrossreport/acr-node`（napi-rs 製 Node.js アドオン）
+が Node.js から ACR を組み込むサンプルであるのに対し、ここでは**同じ
+C FFI を、C# / VB.NET / Python / Java の4言語から直接呼び出す**最小
+サンプルを置いています。
 
-**ビルドは不要です。** 対応プラットフォーム向けのビルド済みライブラリを
-`native/<rid>/` に同梱しています。
+**ビルドは不要です。** 動作確認を行ったプラットフォームごとに、ライブラリ
+とサンプル一式を丸ごと配布物として分けています。**自分のOS・CPUの
+フォルダだけ**を使ってください。
 
 ```
 acr-libs-samples/
-├── common/          # 共通のテンプレートJSON / データJSON
-├── native/          # ビルド済みネイティブライブラリ（プラットフォーム別）
-│   ├── win-arm64/axr_runtime.dll
-│   └── linux-arm64/libaxr_runtime.so
-├── python/          # ctypes 版
-├── csharp/          # .NET (C#) 版、P/Invoke
-├── vb/              # .NET (VB.NET) 版、P/Invoke
-└── java/            # JNA 版
+├── windows-arm64/   # Windows (ARM64)
+│   ├── native/axr_runtime.dll
+│   ├── common/      # テンプレートJSON / データJSON
+│   ├── python/
+│   ├── csharp/
+│   ├── vb/
+│   └── java/
+└── linux-arm64/     # Linux (ARM64)
+    ├── native/libaxr_runtime.so
+    ├── common/
+    ├── python/
+    ├── csharp/
+    ├── vb/
+    └── java/
 ```
 
-## 対応プラットフォーム（同梱済み）
+各フォルダは完全に独立しています（他のプラットフォーム用フォルダに一切
+依存しません）。使い方は共通で、それぞれの `<platform>/<language>/` の
+中の README を見てください。
 
-| RID | 状態 |
+## 対応プラットフォーム
+
+| フォルダ | 状態 |
 |---|---|
-| `win-arm64` | ✅ 同梱済み・動作確認済み |
-| `linux-arm64` | ✅ 同梱済み・動作確認済み |
-| `win-x64` | 未同梱（ビルドでき次第追加予定） |
-| `osx-arm64` / `osx-x64` | 未同梱（ビルドでき次第追加予定） |
-| `linux-x64` | 未同梱（ビルドでき次第追加予定） |
+| `windows-arm64/` | ✅ 動作確認済み |
+| `linux-arm64/` | ✅ 動作確認済み（Python / Java。C#/VB.NETはロジック上はWindows版と同一ですが、この環境に.NET SDKが無く未実機確認です） |
 
-`native/` に無いプラットフォームで動かす場合は、環境変数
-`ACR_NATIVE_LIB` でライブラリの場所を指定してください
-（Python/C#/VB.NET はライブラリファイルへのフルパス、Java は
+Windows x64 / macOS / Linux x64 向けのフォルダは、ビルドでき次第追加します。
+手元にそのプラットフォームが無い場合は、環境変数 `ACR_NATIVE_LIB` で
+別途用意したライブラリの場所を指定すれば、同じサンプルコードを流用
+できます（Python/C#/VB.NET はライブラリファイルへのフルパス、Java は
 ライブラリファイルを含むディレクトリのパス）。
 
 ## 公開しているAPI
@@ -60,87 +67,17 @@ acr-libs-samples/
 ## ライセンスとウォーターマーク
 
 **アクティベートしていない状態（既定）では、出力PDFにウォーターマークが
-入ります。** これは `acr_license_check()` の戻り値（0=未認証, 1=DESIGNER,
-2=DESIGNERPRO）に応じて `acr_render_pdf` 側が自動的に付加するもので、
+入ります。** `acr_license_check()` の戻り値（0=未認証, 1=DESIGNER,
+2=DESIGNERPRO）に応じて `acr_render_pdf` が自動的に付加するもので、
 DESIGNERPRO ライセンスでアクティベートした場合のみウォーターマークが
 消えます。
 
 各サンプルは、環境変数 `ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY` の両方が
 設定されている場合のみ `acr_license_activate()` を呼び出します（未設定
 なら "activation: skipped" と表示してそのまま未認証状態で進みます）。
-
-```bash
-# 未アクティベート: ウォーターマークあり
-python render_sample.py
-
-# アクティベート: 有効なDESIGNERPROキーならウォーターマークなし
-ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-DESIGNERPRO-xxxx-20260401-xxxxxxxx \
-    python render_sample.py
-```
-
 実行結果には `activation: success/failed/skipped`・`license tier`・
 `watermark: yes/no` が毎回表示されるので、アクティベーションの有無で
 出力が変わることを確認できます。
-
-## 1. Python (ctypes)
-
-追加の依存ライブラリは不要です（標準ライブラリの `ctypes` のみ）。
-
-```bash
-cd acr-libs-samples/python
-python render_sample.py
-```
-
-## 2. C# (.NET, P/Invoke)
-
-.NET 8 SDK が必要です。Windows / macOS / Linux のいずれでも動作します。
-
-```bash
-cd acr-libs-samples/csharp
-dotnet run
-```
-
-## 3. VB.NET (.NET, P/Invoke)
-
-.NET 8 SDK が必要です。
-
-```bash
-cd acr-libs-samples/vb
-dotnet run
-```
-
-## 4. Java (JNA)
-
-JDK 11+ と Maven が必要です。`pom.xml` が `net.java.dev.jna:jna` を
-Maven Central から取得します（ネットワーク接続が必要）。
-
-```bash
-cd acr-libs-samples/java
-mvn package
-java -jar target/acr-libs-samples-jar-with-dependencies.jar
-```
-
-Python / C# / VB.NET / Java すべて、`native/` 同梱のライブラリから実際に
-`output.pdf` の生成まで確認済みです（Windows ARM64, Linux ARM64(WSL2)）。
-
-### JDK のインストールについて（プラットフォーム / CPUアーキテクチャ別の注意）
-
-`axr_runtime` はネイティブライブラリなので、**JVM 自体の CPU
-アーキテクチャと `axr_runtime` のビルドが一致していないと読み込めません**
-（`UnsatisfiedLinkError` / "not a valid Win32 application" のようなエラー
-になります）。`java -XshowSettings:properties -version` の `os.arch` を
-確認してください。
-
-| OS / CPU | 対応するJDK |
-|---|---|
-| Windows x64 | 多くのディストリビューションで提供（例: [Eclipse Temurin](https://adoptium.net/) 17/21 の x64 版） |
-| **Windows ARM64** | **Eclipse Temurin は JDK 17 系に Windows ARM64 ビルドが無い。JDK 21 以降を使うこと**（[Temurin 21 の aarch64_windows 版](https://github.com/adoptium/temurin21-binaries/releases)）。各種パッケージマネージャ経由のインストールはx64版しか無いことが多く、ARM64 Windows ではエミュレーションで動いてしまい `axr_runtime.dll`（ARM64ネイティブ）を読み込めない |
-| macOS (Intel / Apple Silicon) | [Eclipse Temurin](https://adoptium.net/) の `aarch64_mac` / `x64_mac` 版 |
-| Linux (x64 / ARM64) | [Eclipse Temurin](https://adoptium.net/) の `x64_linux` / `aarch64_linux` 版、または各ディストリのパッケージ（Ubuntu/Debianなら `sudo apt install openjdk-21-jdk maven` でJDKとMavenがまとめて入る） |
-
-Maven がパッケージマネージャに無い場合は、
-https://maven.apache.org/download.cgi からバイナリZIPを取得して展開し、
-`bin/` を PATH に追加してください（SHA-512 チェックサムでの検証を推奨）。
 
 ## 注意点（組み込み時に意識すること）
 
@@ -149,10 +86,6 @@ https://maven.apache.org/download.cgi からバイナリZIPを取得して展開
   `acr_free_buffer(ptr, len)` を呼んでください。呼ばないとメモリ
   リークします（プロセス終了時にOSが回収しますが、長時間稼働する
   サーバープロセスに組み込む場合は必須です）。
-- `acr_license_check()` が `0`（未認証）または `1`（DESIGNER）のときは
-  出力にウォーターマークが入ります。`2`（DESIGNERPRO）のみ透かし無し
-  になります。ライセンスキーを持っている場合は `acr_license_activate`
-  を呼んで有効化してください。
 - テンプレートJSONは最低限、`ACR.Report.Sections.Section` の配列に
   **「Detail」という名前に正規化されるセクションを1つだけ**含む必要が
   あります。`common/template.json` はその最小形です。

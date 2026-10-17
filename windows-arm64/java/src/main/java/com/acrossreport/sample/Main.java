@@ -10,64 +10,35 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * axr_runtime（ACRのネイティブ共有ライブラリ）を Java から呼び出す
- * 最小サンプル。ビルドは不要です。対応プラットフォーム向けのライブラリは
- * native/<rid>/ に同梱されています。
+ * axr_runtime（ACRのネイティブ共有ライブラリ、Windows ARM64版）を Java
+ * から呼び出す最小サンプル。ビルドは不要です。
  *
  * 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
- *   cd acr-libs-samples/java
+ *   cd windows-arm64/java
  *   mvn package
- *   java -jar target/acr-libs-samples-jar-with-dependencies.jar
+ *   java -jar target/acr-libs-sample-jar-with-dependencies.jar
  *
  * 実行（ライセンスキーでアクティベートしてから生成）:
- *   ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
- *       java -jar target/acr-libs-samples-jar-with-dependencies.jar
+ *   set ACR_LICENSE_EMAIL=you@example.com
+ *   set ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx
+ *   java -jar target/acr-libs-sample-jar-with-dependencies.jar
  */
 public final class Main {
 
     private Main() {
     }
 
-    private static String nativeLibraryFileName() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        if (os.contains("win")) {
-            return "axr_runtime.dll";
-        } else if (os.contains("mac")) {
-            return "libaxr_runtime.dylib";
-        } else {
-            return "libaxr_runtime.so";
-        }
-    }
-
-    private static String runtimeIdentifier() {
-        String os = System.getProperty("os.name", "").toLowerCase();
-        String arch = System.getProperty("os.arch", "").toLowerCase();
-        boolean isArm64 = arch.contains("aarch64") || arch.contains("arm64");
-        if (os.contains("win")) {
-            return isArm64 ? "win-arm64" : "win-x64";
-        } else if (os.contains("mac")) {
-            return isArm64 ? "osx-arm64" : "osx-x64";
-        } else {
-            return isArm64 ? "linux-arm64" : "linux-x64";
-        }
-    }
-
     public static void main(String[] args) throws IOException {
-        // 同梱の native/<rid>/ を JNA の検索パスとして教える（ビルド不要）。
-        // ACR_NATIVE_LIB 環境変数が設定されていれば、そのディレクトリを優先する。
+        // windows-arm64/java から見て windows-arm64 (このプラットフォーム用ツリーのルート) は1階層上。
         Path sampleDir = Paths.get("").toAbsolutePath();
-        Path samplesRoot = sampleDir.resolve("..").normalize();
+        Path platformRoot = sampleDir.resolve("..").normalize();
         String envNativeLib = System.getenv("ACR_NATIVE_LIB");
         Path nativeDir = (envNativeLib != null)
                 ? Paths.get(envNativeLib)
-                : samplesRoot.resolve("native").resolve(runtimeIdentifier());
+                : platformRoot.resolve("native");
 
-        if (!Files.exists(nativeDir.resolve(nativeLibraryFileName()))) {
-            System.err.println(
-                    "native library not found for this platform (" + runtimeIdentifier() + "): " +
-                    nativeDir.resolve(nativeLibraryFileName()) + "\n" +
-                    "同梱されているプラットフォームは native/ ディレクトリを確認してください。\n" +
-                    "別の場所にあるライブラリを使う場合は環境変数 ACR_NATIVE_LIB でそのディレクトリを指定してください。");
+        if (!Files.exists(nativeDir.resolve("axr_runtime.dll"))) {
+            System.err.println("native library not found: " + nativeDir.resolve("axr_runtime.dll"));
             System.exit(1);
         }
 
@@ -94,7 +65,7 @@ public final class Main {
         System.out.println("license tier: " + tier + " (0=unlicensed/watermarked, 1=DESIGNER, 2=DESIGNERPRO)");
         System.out.println("watermark: " + (watermark ? "yes" : "no"));
 
-        Path commonDir = samplesRoot.resolve("common");
+        Path commonDir = platformRoot.resolve("common");
         String templateJson = Files.readString(commonDir.resolve("template.json"), StandardCharsets.UTF_8);
         String dataJson = Files.readString(commonDir.resolve("data.json"), StandardCharsets.UTF_8);
 

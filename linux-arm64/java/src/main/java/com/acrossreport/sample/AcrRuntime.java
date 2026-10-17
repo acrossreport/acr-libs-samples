@@ -7,8 +7,7 @@ import com.sun.jna.ptr.IntByReference;
 
 /**
  * axr_runtime（ACRのネイティブ共有ライブラリ）の FFI 境界を JNA で
- * マッピングしたもの。関数シグネチャは Acr/acr_dll/src/lib.rs および
- * license_ffi.rs の #[no_mangle] extern "C" 関数に対応する。
+ * マッピングしたもの。
  */
 public interface AcrRuntime extends Library {
 

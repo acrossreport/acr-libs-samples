@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.acrossreport.sample</groupId>
-  <artifactId>acr-libs-samples</artifactId>
+  <artifactId>acr-libs-sample-linux-arm64</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
 
@@ -22,7 +22,7 @@
   </dependencies>
 
   <build>
-    <finalName>acr-libs-samples</finalName>
+    <finalName>acr-libs-sample</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

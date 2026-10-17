@@ -1,11 +1,6 @@
 """
-axr_runtime（ACRのネイティブ共有ライブラリ）を Python から呼び出す
-最小サンプル。
-
-ビルド済みのネイティブライブラリ (axr_runtime.dll / libaxr_runtime.so /
-libaxr_runtime.dylib) を ctypes でロードし、テンプレートJSON + データJSON
-から PDF を1本生成するだけの例です。ビルドは不要です。対応プラット
-フォーム向けのライブラリは `native/<rid>/` に同梱されています。
+axr_runtime（ACRのネイティブ共有ライブラリ、Linux ARM64版）を Python
+から呼び出す最小サンプル。ビルドは不要です。
 
 実行（未アクティベート。出力PDFにウォーターマークが入ります）:
     python render_sample.py
@@ -14,70 +9,24 @@ libaxr_runtime.dylib) を ctypes でロードし、テンプレートJSON + デ�
 キーならウォーターマークが消えます）:
     ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
         python render_sample.py
-
-同梱されていないプラットフォーム（`native/` 配下を参照）の場合は、
-環境変数 ACR_NATIVE_LIB にネイティブライブラリのフルパスを指定して
-ください。
 """
 
 import ctypes
 import os
 import pathlib
-import platform
 import sys
 
 SAMPLE_DIR = pathlib.Path(__file__).resolve().parent
-SAMPLES_ROOT = SAMPLE_DIR.parent
-COMMON_DIR = SAMPLES_ROOT / "common"
-NATIVE_ROOT = SAMPLES_ROOT / "native"
-
-
-def native_lib_filename() -> str:
-    system = platform.system()
-    if system == "Windows":
-        return "axr_runtime.dll"
-    elif system == "Darwin":
-        return "libaxr_runtime.dylib"
-    else:
-        return "libaxr_runtime.so"
-
-
-def runtime_identifier() -> str:
-    system = platform.system()
-    machine = platform.machine().lower()
-    is_arm64 = machine in ("arm64", "aarch64")
-    if system == "Windows":
-        return "win-arm64" if is_arm64 else "win-x64"
-    elif system == "Darwin":
-        return "osx-arm64" if is_arm64 else "osx-x64"
-    else:
-        return "linux-arm64" if is_arm64 else "linux-x64"
-
-
-def native_lib_path() -> pathlib.Path:
-    override = os.environ.get("ACR_NATIVE_LIB")
-    if override:
-        path = pathlib.Path(override)
-        if not path.exists():
-            raise FileNotFoundError(f"ACR_NATIVE_LIB で指定されたファイルが見つかりません: {path}")
-        return path
-
-    rid = runtime_identifier()
-    name = native_lib_filename()
-    bundled = NATIVE_ROOT / rid / name
-    if bundled.exists():
-        return bundled
-
-    raise FileNotFoundError(
-        f"native library not found for this platform ({rid}): {bundled}\n"
-        f"同梱されているプラットフォームは native/ ディレクトリを確認してください。\n"
-        "別の場所にあるライブラリを使う場合は環境変数 ACR_NATIVE_LIB で"
-        "フルパスを指定してください。"
-    )
+PLATFORM_ROOT = SAMPLE_DIR.parent
+COMMON_DIR = PLATFORM_ROOT / "common"
+NATIVE_LIB = PLATFORM_ROOT / "native" / "libaxr_runtime.so"
 
 
 def load_library() -> ctypes.CDLL:
-    lib = ctypes.CDLL(str(native_lib_path()))
+    lib_path = pathlib.Path(os.environ.get("ACR_NATIVE_LIB", str(NATIVE_LIB)))
+    if not lib_path.exists():
+        raise FileNotFoundError(f"native library not found: {lib_path}")
+    lib = ctypes.CDLL(str(lib_path))
 
     lib.acr_version.restype = ctypes.c_char_p
 
