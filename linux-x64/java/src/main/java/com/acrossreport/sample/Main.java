@@ -10,17 +10,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * axr_runtime（ACRのネイティブ共有ライブラリ、Linux ARM64版）を Java
+ * axr_runtime（ACRのネイティブ共有ライブラリ、Linux x64版）を Java
  * から呼び出す最小サンプル。ビルドは不要です。
  *
  * 実行（未アクティベート。出力PDFにウォーターマークが入ります。
  * output.pdf を開いて確認してください）:
- *   cd linux-arm64/java
+ *   cd linux-x64/java
  *   mvn package
  *   java -jar target/acr-libs-sample-jar-with-dependencies.jar
  *
  * 実行（ライセンスキーでアクティベートしてから生成）:
- *   ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \n *       java -jar target/acr-libs-sample-jar-with-dependencies.jar
+ *   ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
+ *       java -jar target/acr-libs-sample-jar-with-dependencies.jar
  */
 public final class Main {
 
@@ -28,7 +29,7 @@ public final class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        // linux-arm64/java から見て windows-arm64 (このプラットフォーム用ツリーのルート) は1階層上。
+        // linux-x64/java から見て linux-x64 (このプラットフォーム用ツリーのルート) は1階層上。
         Path sampleDir = Paths.get("").toAbsolutePath();
         Path platformRoot = sampleDir.resolve("..").normalize();
         String envNativeLib = System.getenv("ACR_NATIVE_LIB");

@@ -1,9 +1,9 @@
-' axr_runtime（ACRのネイティブ共有ライブラリ、Linux ARM64版）を
+' axr_runtime（ACRのネイティブ共有ライブラリ、Linux x64版）を
 ' VB.NET から呼び出す最小サンプル。ビルドは不要です。
 '
 ' 実行（未アクティベート。出力PDFにウォーターマークが入ります。
 ' output.pdf を開いて確認してください）:
-'     cd linux-arm64/vb
+'     cd linux-x64/vb
 '     dotnet run
 '
 ' 実行（ライセンスキーでアクティベートしてから生成）:
@@ -42,7 +42,7 @@ End Module
 Module Program
 
     Private Sub RegisterResolver()
-        ' linux-arm64/vb から見て windows-arm64 (このプラットフォーム用ツリーのルート) は1階層上。
+        ' linux-x64/vb から見て linux-x64 (このプラットフォーム用ツリーのルート) は1階層上。
         Dim sampleDir As String = AppContext.BaseDirectory
         Dim platformRoot As String = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", ".."))
         Dim candidate As String = Environment.GetEnvironmentVariable("ACR_NATIVE_LIB")

@@ -20,7 +20,8 @@ import java.nio.file.Paths;
  *   java -jar target/acr-libs-sample-jar-with-dependencies.jar
  *
  * 実行（ライセンスキーでアクティベートしてから生成）:
- *   ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \n *       java -jar target/acr-libs-sample-jar-with-dependencies.jar
+ *   ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
+ *       java -jar target/acr-libs-sample-jar-with-dependencies.jar
  */
 public final class Main {
 

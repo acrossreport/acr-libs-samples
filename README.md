@@ -64,7 +64,7 @@ acr-libs-samples/
 
 | フォルダ | 状態 |
 |---|---|
-| `windows-x64/` | ✅ 動作確認済み（Python / C# / VB.NET。Javaはコードのみ、未実行） |
+| `windows-x64/` | ✅ 動作確認済み（4言語とも） |
 | `windows-arm64/` | ✅ 動作確認済み（4言語とも） |
 | `linux-arm64/` | ✅ 動作確認済み（4言語とも） |
 | `linux-x64/` | ✅ 動作確認済み（4言語とも） |

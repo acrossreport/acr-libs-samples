@@ -6,7 +6,7 @@ axr_runtime（ACRのネイティブ共有ライブラリ、Linux ARM64版）を 
 output.pdf を開いて確認してください）:
     python render_sample.py
 
-実行（ライセンスキーでアクティベートしてから生成。有効なDESIGNERPRO
+実行（ライセンスキーでアクティベートしてから生成。有効なENGINE
 キーならウォーターマークが消えます）:
     ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
         python render_sample.py

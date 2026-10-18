@@ -1,9 +1,9 @@
-// axr_runtime（ACRのネイティブ共有ライブラリ、Linux ARM64版）を
+// axr_runtime（ACRのネイティブ共有ライブラリ、Linux x64版）を
 // C# / .NET から呼び出す最小サンプル。ビルドは不要です。
 //
 // 実行（未アクティベート。出力PDFにウォーターマークが入ります。
 // output.pdf を開いて確認してください）:
-//     cd linux-arm64/csharp
+//     cd linux-x64/csharp
 //     dotnet run
 //
 // 実行（ライセンスキーでアクティベートしてから生成）:
@@ -42,7 +42,7 @@ internal static class Program
 {
     private static void RegisterResolver()
     {
-        // linux-arm64/csharp から見て windows-arm64 (このプラットフォーム用ツリーのルート) は1階層上。
+        // linux-x64/csharp から見て linux-x64 (このプラットフォーム用ツリーのルート) は1階層上。
         var sampleDir = AppContext.BaseDirectory;
         var platformRoot = Path.GetFullPath(Path.Combine(sampleDir, "..", "..", "..", ".."));
         var candidate = Environment.GetEnvironmentVariable("ACR_NATIVE_LIB")
