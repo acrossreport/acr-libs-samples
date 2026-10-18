@@ -94,8 +94,13 @@ PDFの代わりにZIP（全ページPNG入り、ACR-PNG-PACKAGE形式）が欲�
 ## ライセンスとウォーターマーク
 
 **アクティベートしていない状態（既定）では、出力PDFにウォーターマークが
-入ります。** DESIGNERPRO ライセンスでアクティベートした場合のみ
+入ります。** ENGINEライセンスでアクティベートした場合のみ
 ウォーターマークが消えます。
+
+ライセンスキーは [licensvr.acrossreport.com](https://licensvr.acrossreport.com)
+で無償登録すると取得できます（Google・GitHub・メールアドレスのいずれかで
+登録可能、ACR Engine向けの登録フォームからどうぞ）。取得したキーを
+`ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY` に設定してください。
 
 各サンプルは、環境変数 `ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY` の両方が
 設定されている場合のみ `acr_license_activate()` を呼び出します（未設定
