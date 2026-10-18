@@ -1,10 +1,12 @@
-# axr_runtime 組み込みサンプル — Windows (ARM64)
+[English](README.md) | [日本語](README.ja.md) | [Français](README.fr.md)
 
-ビルドは不要です。`native/axr_runtime.dll` を同梱しています。
+# axr_runtime embedding sample — Windows (ARM64)
+
+No build required. `native/axr_runtime.dll` is included.
 
 ## 1. Python (ctypes)
 
-追加の依存ライブラリは不要です（標準ライブラリの `ctypes` のみ）。
+No extra dependencies needed (only the standard library's `ctypes`).
 
 ```bash
 cd python
@@ -13,7 +15,7 @@ python render_sample.py
 
 ## 2. C# (.NET, P/Invoke)
 
-.NET 10 SDK が必要です。
+Requires the .NET 10 SDK.
 
 ```bash
 cd csharp
@@ -22,7 +24,7 @@ dotnet run
 
 ## 3. VB.NET (.NET, P/Invoke)
 
-.NET 10 SDK が必要です。
+Requires the .NET 10 SDK.
 
 ```bash
 cd vb
@@ -31,8 +33,8 @@ dotnet run
 
 ## 4. Java (JNA)
 
-JDK 11+ と Maven が必要です。`pom.xml` が `net.java.dev.jna:jna` を
-Maven Central から取得します（ネットワーク接続が必要）。
+Requires JDK 11+ and Maven. `pom.xml` fetches `net.java.dev.jna:jna`
+from Maven Central (requires network access).
 
 ```bash
 cd java
@@ -40,31 +42,31 @@ mvn package
 java -jar target/acr-libs-sample-jar-with-dependencies.jar
 ```
 
-Windows ARM64 の JDK について: Eclipse Temurin は JDK 17 系に Windows
-ARM64 ビルドが無いため、**JDK 21 以降**を使ってください
-（[Temurin 21 の aarch64_windows 版](https://github.com/adoptium/temurin21-binaries/releases)）。
-各種パッケージマネージャ経由のインストールはx64版しか無いことが多く、
-ARM64 Windows ではエミュレーションで動いてしまい `axr_runtime.dll`
-（ARM64ネイティブ）を読み込めません。`java -XshowSettings:properties
--version` の `os.arch` が `aarch64` になっているか確認してください。
+Regarding the JDK on Windows ARM64: Eclipse Temurin has no Windows
+ARM64 build in the JDK 17 line, so use **JDK 21 or later**
+([Temurin 21's aarch64_windows build](https://github.com/adoptium/temurin21-binaries/releases)).
+Installs via most package managers are often x64-only, which on ARM64
+Windows ends up running under emulation and fails to load
+`axr_runtime.dll` (ARM64-native). Check that `os.arch` reported by
+`java -XshowSettings:properties -version` is `aarch64`.
 
-4言語とも実機で動作確認済みです。
+All 4 languages have been verified on real hardware.
 
-## ライセンス・アクティベーション
+## License and activation
 
-未アクティベートで実行すると出力PDFにウォーターマークが入ります。
-ライセンスキーがある場合は、アクティベートしてから実行してください。
-ウォーターマークの有無は `output.pdf` を開いて確認してください。
+Running without activation adds a watermark to the output PDF. If you
+have a license key, activate before running. Check whether the
+watermark is present by opening `output.pdf`.
 
 ```bash
-# cmd.exe の場合
+# cmd.exe
 set ACR_LICENSE_EMAIL=you@example.com
 set ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx
 python render_sample.py
 ```
 
 ```powershell
-# PowerShell の場合
+# PowerShell
 $env:ACR_LICENSE_EMAIL = "you@example.com"
 $env:ACR_LICENSE_KEY = "ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx"
 python render_sample.py

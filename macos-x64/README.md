@@ -1,10 +1,12 @@
-# axr_runtime 組み込みサンプル — macOS (Intel / x64)
+[English](README.md) | [日本語](README.ja.md) | [Français](README.fr.md)
 
-ビルドは不要です。`native/libaxr_runtime.dylib` を同梱しています。
+# axr_runtime embedding sample — macOS (Intel / x64)
+
+No build required. `native/libaxr_runtime.dylib` is included.
 
 ## 1. Python (ctypes)
 
-追加の依存ライブラリは不要です（標準ライブラリの `ctypes` のみ）。
+No extra dependencies needed (only the standard library's `ctypes`).
 
 ```bash
 cd python
@@ -13,7 +15,8 @@ python3 render_sample.py
 
 ## 2. C# (.NET, P/Invoke)
 
-.NET 10 SDK が必要です。`brew install --cask dotnet-sdk` で入ります。
+Requires the .NET 10 SDK. You can get it with
+`brew install --cask dotnet-sdk`.
 
 ```bash
 cd csharp
@@ -22,7 +25,7 @@ dotnet run
 
 ## 3. VB.NET (.NET, P/Invoke)
 
-.NET 10 SDK が必要です。
+Requires the .NET 10 SDK.
 
 ```bash
 cd vb
@@ -31,8 +34,8 @@ dotnet run
 
 ## 4. Java (JNA)
 
-JDK 11+ と Maven が必要です。`pom.xml` が `net.java.dev.jna:jna` を
-Maven Central から取得します（ネットワーク接続が必要）。
+Requires JDK 11+ and Maven. `pom.xml` fetches `net.java.dev.jna:jna`
+from Maven Central (requires network access).
 
 ```bash
 cd java
@@ -40,15 +43,17 @@ mvn package
 java -jar target/acr-libs-sample-jar-with-dependencies.jar
 ```
 
-Homebrew なら `brew install openjdk maven` でJDKとMavenがまとめて入ります。
+With Homebrew, `brew install openjdk maven` gets you both the JDK and
+Maven at once.
 
-4言語とも実機（macOS, Intel x64）で動作確認済みです。
+All 4 languages have been verified on real hardware (macOS, Intel
+x64).
 
-## ライセンス・アクティベーション
+## License and activation
 
-未アクティベートで実行すると出力PDFにウォーターマークが入ります。
-ライセンスキーがある場合は、アクティベートしてから実行してください。
-ウォーターマークの有無は `output.pdf` を開いて確認してください。
+Running without activation adds a watermark to the output PDF. If you
+have a license key, activate before running. Check whether the
+watermark is present by opening `output.pdf`.
 
 ```bash
 ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
