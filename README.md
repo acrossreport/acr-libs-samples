@@ -1,4 +1,4 @@
-# axr_runtime 組み込みサンプル (C# / VB.NET / Python / Java)
+# 組み込みサンプル
 
 `axr_runtime` は、Avalonia デザイナー向けに作られた C ABI のネイティブ
 共有ライブラリです。`@acrossreport/acr-node`（napi-rs 製 Node.js アドオン）
