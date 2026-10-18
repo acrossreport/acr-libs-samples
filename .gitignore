@@ -3,4 +3,5 @@
 **/output_*.png
 **/bin/
 **/obj/
+**/target/
 *.class
