@@ -9,7 +9,8 @@ different terms as described below.
 
    The sample source code under each platform's `python/`, `csharp/`,
    `vb/`, and `java/` folders (and any `common/` template or data JSON
-   files) is licensed under the MIT License:
+   files), as well as the `acr.h` C header at the repository root, is
+   licensed under the MIT License:
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this sample code and associated documentation files, to deal in
@@ -33,10 +34,11 @@ different terms as described below.
 2. BUNDLED NATIVE RUNTIME LIBRARY (axr_runtime)
 
    The compiled native library bundled in each platform's `native/`
-   folder (`axr_runtime.dll`, `libaxr_runtime.so`, `libaxr_runtime.dylib`)
-   is proprietary software of Across Systems Corporation. It is NOT
-   covered by the MIT License above. By downloading or using it, you
-   agree to the following terms:
+   folder (`axr_runtime.dll`, `libaxr_runtime.so`, `libaxr_runtime.dylib`,
+   and the `axr_runtime.lib` import library bundled for the Windows
+   platforms) is proprietary software of Across Systems Corporation. It
+   is NOT covered by the MIT License above. By downloading or using it,
+   you agree to the following terms:
 
    a. GRANT OF LICENSE
       You are granted a non-exclusive, non-transferable license to use

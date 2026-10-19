@@ -14,10 +14,17 @@ vérifiée, la bibliothèque et l'ensemble des exemples sont fournis sous
 forme de distribution autonome. **Utilisez uniquement le dossier
 correspondant à votre système et à votre processeur.**
 
+Pour C / C++ (et pour cgo, lorsque vous appelez la bibliothèque depuis
+Go), utilisez [`acr.h`](acr.h) à la racine de ce dépôt — il déclare la
+même interface C que ces exemples appellent, et c'est l'en-tête à
+inclure (`#include`/`cgo`).
+
 ```
 acr-libs-samples/
+├── acr.h            # En-tête ABI C (C/C++, cgo, ...)
 ├── windows-x64/     # Windows (x64)
 │   ├── native/axr_runtime.dll
+│   ├── native/axr_runtime.lib  # bibliothèque d'import, pour lier depuis C/C++ MSVC ou cgo
 │   ├── common/      # JSON de template / JSON de données
 │   ├── python/
 │   ├── csharp/
@@ -25,6 +32,7 @@ acr-libs-samples/
 │   └── java/
 ├── windows-arm64/   # Windows (ARM64)
 │   ├── native/axr_runtime.dll
+│   ├── native/axr_runtime.lib  # bibliothèque d'import, pour lier depuis C/C++ MSVC ou cgo
 │   ├── common/
 │   ├── python/
 │   ├── csharp/
@@ -84,7 +92,9 @@ vers le répertoire qui le contient).
 
 ## API exposée
 
-Cet exemple n'utilise que l'ensemble minimal de fonctions suivant.
+Cet exemple n'utilise que l'ensemble minimal de fonctions suivant. Voir
+[`acr.h`](acr.h) pour les déclarations C complètes (y compris
+`acr_render_zip`).
 
 | Fonction | Description |
 |---|---|
@@ -97,6 +107,23 @@ Si vous souhaitez obtenir un ZIP (contenant un PNG par page, au format
 ACR-PNG-PACKAGE) au lieu d'un PDF, il suffit d'appeler
 `acr_render_zip(templateJson, dataJson, &outLen)`, qui prend les mêmes
 arguments (cet exemple ne l'appelle pas).
+
+## Lier depuis C / C++ (et cgo)
+
+Le fichier `acr.h` à la racine du dépôt déclare l'interface C commune à
+toutes les plateformes. Pour lier :
+
+- Windows : liez `<platform>/native/axr_runtime.lib` (bibliothèque
+  d'import) ; à l'exécution, placez `axr_runtime.dll` à côté de votre
+  exécutable.
+- Linux : liez directement `<platform>/native/libaxr_runtime.so` (aucune
+  bibliothèque d'import séparée n'est nécessaire sous Linux).
+- macOS : liez directement `<platform>/native/libaxr_runtime.dylib`.
+
+Pour cgo, faites pointer `CGO_LDFLAGS` vers le dossier `native/` de la
+plateforme (par ex. `-L${SRCDIR}/windows-x64/native -laxr_runtime` sous
+Windows, pour le `.lib` ; directement vers le `.so`/`.dylib` sous
+Linux/macOS) et faites `#include "acr.h"` dans le préambule cgo.
 
 ## Licence et filigrane
 

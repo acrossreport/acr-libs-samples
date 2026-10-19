@@ -12,10 +12,16 @@ C FFI を、C# / VB.NET / Python / Java の4言語から直接呼び出す**最�
 とサンプル一式を丸ごと配布物として分けています。**自分のOS・CPUの
 フォルダだけ**を使ってください。
 
+C / C++ から（また、Go から cgo 経由で呼ぶ場合も）、このリポジトリ
+ルートにある [`acr.h`](acr.h) を使ってください。各サンプルが呼んでいる
+のと同じ C ABI を宣言したヘッダーです。
+
 ```
 acr-libs-samples/
+├── acr.h            # C ABIヘッダー(C/C++、cgoなど向け)
 ├── windows-x64/     # Windows (x64)
 │   ├── native/axr_runtime.dll
+│   ├── native/axr_runtime.lib  # インポートライブラリ(MSVC製C/C++やcgoからのリンク用)
 │   ├── common/      # テンプレートJSON / データJSON
 │   ├── python/
 │   ├── csharp/
@@ -23,6 +29,7 @@ acr-libs-samples/
 │   └── java/
 ├── windows-arm64/   # Windows (ARM64)
 │   ├── native/axr_runtime.dll
+│   ├── native/axr_runtime.lib  # インポートライブラリ(MSVC製C/C++やcgoからのリンク用)
 │   ├── common/
 │   ├── python/
 │   ├── csharp/
@@ -80,7 +87,8 @@ acr-libs-samples/
 
 ## 公開しているAPI
 
-このサンプルが使うのは次の最小限だけです。
+このサンプルが使うのは次の最小限だけです。C宣言の全体（`acr_render_zip`
+を含む）は [`acr.h`](acr.h) を参照してください。
 
 | 関数 | 説明 |
 |---|---|
@@ -92,6 +100,22 @@ acr-libs-samples/
 PDFの代わりにZIP（全ページPNG入り、ACR-PNG-PACKAGE形式）が欲しい場合は、
 同じ引数の `acr_render_zip(templateJson, dataJson, &outLen)` に差し替える
 だけです（このサンプルでは呼んでいません）。
+
+## C / C++（および cgo）からのリンク
+
+リポジトリルートの `acr.h` が、全プラットフォーム共通のC ABIを宣言して
+います。リンク方法:
+
+- Windows: `<platform>/native/axr_runtime.lib`（インポートライブラリ）を
+  リンクし、実行時は `axr_runtime.dll` を実行ファイルと同じ場所に置く。
+- Linux: `<platform>/native/libaxr_runtime.so` を直接リンク（Linuxでは
+  別途インポートライブラリは不要）。
+- macOS: `<platform>/native/libaxr_runtime.dylib` を直接リンク。
+
+cgo の場合は `CGO_LDFLAGS` でそのプラットフォームの `native/` フォルダ
+を指定し（例: Windowsなら `-L${SRCDIR}/windows-x64/native -laxr_runtime`
+で `.lib` を、Linux/macOSなら `.so`/`.dylib` を直接指定）、cgoの
+プリアンブルで `#include "acr.h"` してください。
 
 ## ライセンスとウォーターマーク
 
