@@ -62,6 +62,18 @@ unsigned char* acr_render_pdf(const char* template_json, const char* data_json, 
 unsigned char* acr_render_zip(const char* template_json, const char* data_json, int* out_len);
 
 /*
+ * Returns a pointer to a NUL-terminated UTF-8 string describing the error
+ * from the most recent acr_render_pdf() / acr_render_zip() call.
+ *
+ * Returns an empty string ("") if that call succeeded. Call this right
+ * after a render call returns NULL to get a human-readable reason.
+ *
+ * The returned pointer is owned by the library (do not free it); it
+ * remains valid until the next render call on this process.
+ */
+const char* acr_last_error(void);
+
+/*
  * Free a buffer previously returned by acr_render_pdf() or acr_render_zip().
  *
  * ptr: the buffer pointer.

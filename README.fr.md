@@ -102,11 +102,16 @@ Cet exemple n'utilise que l'ensemble minimal de fonctions suivant. Voir
 | `acr_license_last_message()` | Renvoie le message de la dernière tentative d'activation |
 | `acr_render_pdf(templateJson, dataJson, &outLen)` | Génère un PDF sous forme de tableau d'octets |
 | `acr_free_buffer(ptr, len)` | Libère le tampon renvoyé par les fonctions ci-dessus (l'appelant doit toujours l'appeler) |
+| `acr_last_error()` | Renvoie la raison de l'échec du dernier appel de rendu (chaîne vide en cas de succès) |
 
 Si vous souhaitez obtenir un ZIP (contenant un PNG par page, au format
 ACR-PNG-PACKAGE) au lieu d'un PDF, il suffit d'appeler
 `acr_render_zip(templateJson, dataJson, &outLen)`, qui prend les mêmes
 arguments (cet exemple ne l'appelle pas).
+
+Si `acr_render_pdf` / `acr_render_zip` renvoie NULL, appelez
+`acr_last_error()` pour obtenir une raison lisible (JSON de
+template/données invalide, par exemple).
 
 ## Lier depuis C / C++ (et cgo)
 

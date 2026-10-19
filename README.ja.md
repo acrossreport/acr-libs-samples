@@ -96,10 +96,15 @@ acr-libs-samples/
 | `acr_license_last_message()` | 直前のアクティベーション結果メッセージを返す |
 | `acr_render_pdf(templateJson, dataJson, &outLen)` | PDFバイト列を生成 |
 | `acr_free_buffer(ptr, len)` | 上記が返したバッファを解放（呼び出し側は必ず呼ぶこと） |
+| `acr_last_error()` | 直近の描画呼び出しが失敗した理由を返す（成功時は空文字列） |
 
 PDFの代わりにZIP（全ページPNG入り、ACR-PNG-PACKAGE形式）が欲しい場合は、
 同じ引数の `acr_render_zip(templateJson, dataJson, &outLen)` に差し替える
 だけです（このサンプルでは呼んでいません）。
+
+`acr_render_pdf` / `acr_render_zip` が NULL を返した場合は、
+`acr_last_error()` を呼べば失敗理由（テンプレート・データJSONの不備など）
+を人間が読める形で取得できます。
 
 ## C / C++（および cgo）からのリンク
 

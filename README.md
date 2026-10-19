@@ -97,11 +97,15 @@ This sample only uses the following minimal set of functions. See
 | `acr_license_last_message()` | Returns the message from the most recent activation attempt |
 | `acr_render_pdf(templateJson, dataJson, &outLen)` | Generates a PDF byte buffer |
 | `acr_free_buffer(ptr, len)` | Frees the buffer returned by the functions above (the caller must always call this) |
+| `acr_last_error()` | Returns the reason the most recent render call failed (empty string on success) |
 
 If you want a ZIP (containing one PNG per page, in ACR-PNG-PACKAGE
 format) instead of a PDF, just swap in `acr_render_zip(templateJson,
 dataJson, &outLen)`, which takes the same arguments (this sample does
 not call it).
+
+If `acr_render_pdf` / `acr_render_zip` returns NULL, call `acr_last_error()`
+to get a human-readable reason (e.g. invalid template/data JSON).
 
 ## Linking from C / C++ (and cgo)
 
