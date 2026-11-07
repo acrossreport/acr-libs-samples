@@ -2,7 +2,7 @@
  * acr.h - C ABI for axr_runtime (the ACR native rendering engine)
  *
  * This header declares the minimal C FFI surface documented in this
- * repository's README: license activation and PDF/ZIP(PNG) rendering.
+ * repository's README: PDF/ZIP(PNG) rendering.
  * It matches the native library bundled under each platform's
  * native/ folder (axr_runtime.dll / libaxr_runtime.so / libaxr_runtime.dylib).
  *
@@ -21,27 +21,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/*
- * Activate the engine license for this process.
- *
- * email, key: NUL-terminated UTF-8 strings.
- * Returns non-zero on success, 0 on failure. Call acr_license_last_message()
- * to get a human-readable result (also set on failure).
- *
- * Requires network access (contacts the license server). If this is never
- * called, or activation fails, rendered output includes a watermark.
- */
-int acr_license_activate(const char* email, const char* key);
-
-/*
- * Returns a pointer to a NUL-terminated UTF-8 string describing the result
- * of the most recent acr_license_activate() call.
- *
- * The returned pointer is owned by the library (do not free it); it remains
- * valid until the next call to acr_license_activate() on this process.
- */
-const char* acr_license_last_message(void);
 
 /*
  * Render a report to PDF.

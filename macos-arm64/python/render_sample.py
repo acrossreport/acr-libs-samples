@@ -2,14 +2,9 @@
 axr_runtime（ACRのネイティブ共有ライブラリ、macOS ARM64 (Apple Silicon)版）を Python
 から呼び出す最小サンプル。ビルドは不要です。
 
-実行（未アクティベート。出力PDFにウォーターマークが入ります。
-output.pdf を開いて確認してください）:
+実行:
     python render_sample.py
 
-実行（ライセンスキーでアクティベートしてから生成。有効なENGINE
-キーならウォーターマークが消えます）:
-    ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
-        python render_sample.py
 """
 
 import ctypes
@@ -29,11 +24,6 @@ def load_library() -> ctypes.CDLL:
         raise FileNotFoundError(f"native library not found: {lib_path}")
     lib = ctypes.CDLL(str(lib_path))
 
-    lib.acr_license_activate.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
-    lib.acr_license_activate.restype = ctypes.c_int
-
-    lib.acr_license_last_message.restype = ctypes.c_char_p
-
     lib.acr_render_pdf.argtypes = [
         ctypes.c_char_p,  # template_json
         ctypes.c_char_p,  # data_json
@@ -50,14 +40,6 @@ def load_library() -> ctypes.CDLL:
 def main() -> int:
     lib = load_library()
 
-    email = os.environ.get("ACR_LICENSE_EMAIL")
-    key = os.environ.get("ACR_LICENSE_KEY")
-    if email and key:
-        ok = lib.acr_license_activate(email.encode("utf-8"), key.encode("utf-8"))
-        message = lib.acr_license_last_message().decode("utf-8", errors="replace")
-        print(f"activation: {'success' if ok else 'failed'} ({message})")
-    else:
-        print("activation: skipped (ACR_LICENSE_EMAIL / ACR_LICENSE_KEY not set)")
 
     template_json = (COMMON_DIR / "template.json").read_text(encoding="utf-8")
     data_json = (COMMON_DIR / "data.json").read_text(encoding="utf-8")
@@ -76,7 +58,6 @@ def main() -> int:
         out_path = SAMPLE_DIR / "output.pdf"
         out_path.write_bytes(pdf_bytes)
         print(f"wrote {len(pdf_bytes)} bytes -> {out_path}")
-        print("output.pdf を開いて、ウォーターマークの有無を確認してください。")
     finally:
         lib.acr_free_buffer(buf_ptr, out_len)
 

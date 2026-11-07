@@ -98,8 +98,6 @@ Cet exemple n'utilise que l'ensemble minimal de fonctions suivant. Voir
 
 | Fonction | Description |
 |---|---|
-| `acr_license_activate(email, key)` | Contacte le serveur de licences pour activer (connexion réseau requise) |
-| `acr_license_last_message()` | Renvoie le message de la dernière tentative d'activation |
 | `acr_render_pdf(templateJson, dataJson, &outLen)` | Génère un PDF sous forme de tableau d'octets |
 | `acr_free_buffer(ptr, len)` | Libère le tampon renvoyé par les fonctions ci-dessus (l'appelant doit toujours l'appeler) |
 | `acr_last_error()` | Renvoie la raison de l'échec du dernier appel de rendu (chaîne vide en cas de succès) |
@@ -129,24 +127,6 @@ Pour cgo, faites pointer `CGO_LDFLAGS` vers le dossier `native/` de la
 plateforme (par ex. `-L${SRCDIR}/windows-x64/native -laxr_runtime` sous
 Windows, pour le `.lib` ; directement vers le `.so`/`.dylib` sous
 Linux/macOS) et faites `#include "acr.h"` dans le préambule cgo.
-
-## Licence et filigrane
-
-**Sans activation (comportement par défaut), le PDF généré comporte un
-filigrane.** Ce filigrane ne disparaît qu'après activation avec une
-licence ENGINE.
-
-Vous pouvez obtenir gratuitement une clé de licence sur
-[licensvr.acrossreport.com](https://licensvr.acrossreport.com)
-(inscription possible via Google, GitHub ou une adresse e-mail, en
-utilisant le formulaire d'inscription pour ACR Engine). Définissez la
-clé obtenue dans `ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY`.
-
-Chaque exemple n'appelle `acr_license_activate()` que si les deux
-variables d'environnement `ACR_LICENSE_EMAIL` et `ACR_LICENSE_KEY` sont
-définies (sinon, il affiche « activation: skipped » et continue sans
-activation). **Vérifiez la présence du filigrane en ouvrant réellement
-le fichier `output.pdf` généré.**
 
 ## Points d'attention pour l'intégration
 

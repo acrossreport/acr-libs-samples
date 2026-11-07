@@ -51,23 +51,3 @@ Windows ends up running under emulation and fails to load
 `java -XshowSettings:properties -version` is `aarch64`.
 
 All 4 languages have been verified on real hardware.
-
-## License and activation
-
-Running without activation adds a watermark to the output PDF. If you
-have a license key, activate before running. Check whether the
-watermark is present by opening `output.pdf`.
-
-```bash
-# cmd.exe
-set ACR_LICENSE_EMAIL=you@example.com
-set ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx
-python render_sample.py
-```
-
-```powershell
-# PowerShell
-$env:ACR_LICENSE_EMAIL = "you@example.com"
-$env:ACR_LICENSE_KEY = "ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx"
-python render_sample.py
-```

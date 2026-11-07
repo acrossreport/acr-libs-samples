@@ -46,14 +46,3 @@ Homebrew なら `brew install openjdk maven` でJDKとMavenがまとめて
 入ります。
 
 4言語とも実機（Apple Silicon Mac, macOS 26, arm64）で動作確認済みです。
-
-## ライセンス・アクティベーション
-
-未アクティベートで実行すると出力PDFにウォーターマークが入ります。
-ライセンスキーがある場合は、アクティベートしてから実行してください。
-ウォーターマークの有無は `output.pdf` を開いて確認してください。
-
-```bash
-ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
-    python3 render_sample.py
-```

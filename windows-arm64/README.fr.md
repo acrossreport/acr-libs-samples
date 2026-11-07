@@ -55,23 +55,3 @@ Vérifiez que `os.arch` affiché par
 `java -XshowSettings:properties -version` est bien `aarch64`.
 
 Les 4 langages ont été vérifiés sur une machine réelle.
-
-## Licence et activation
-
-Sans activation, le PDF généré comporte un filigrane. Si vous disposez
-d'une clé de licence, activez avant d'exécuter. Vérifiez la présence
-du filigrane en ouvrant `output.pdf`.
-
-```bash
-# avec cmd.exe
-set ACR_LICENSE_EMAIL=you@example.com
-set ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx
-python render_sample.py
-```
-
-```powershell
-# avec PowerShell
-$env:ACR_LICENSE_EMAIL = "you@example.com"
-$env:ACR_LICENSE_KEY = "ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx"
-python render_sample.py
-```

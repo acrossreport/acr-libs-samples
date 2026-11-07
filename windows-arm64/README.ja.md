@@ -51,23 +51,3 @@ ARM64 Windows ではエミュレーションで動いてしまい `axr_runtime.d
 -version` の `os.arch` が `aarch64` になっているか確認してください。
 
 4言語とも実機で動作確認済みです。
-
-## ライセンス・アクティベーション
-
-未アクティベートで実行すると出力PDFにウォーターマークが入ります。
-ライセンスキーがある場合は、アクティベートしてから実行してください。
-ウォーターマークの有無は `output.pdf` を開いて確認してください。
-
-```bash
-# cmd.exe の場合
-set ACR_LICENSE_EMAIL=you@example.com
-set ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx
-python render_sample.py
-```
-
-```powershell
-# PowerShell の場合
-$env:ACR_LICENSE_EMAIL = "you@example.com"
-$env:ACR_LICENSE_KEY = "ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx"
-python render_sample.py
-```

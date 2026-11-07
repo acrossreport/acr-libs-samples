@@ -92,8 +92,6 @@ acr-libs-samples/
 
 | 関数 | 説明 |
 |---|---|
-| `acr_license_activate(email, key)` | ライセンスサーバーに問い合わせて認証（ネットワーク必須） |
-| `acr_license_last_message()` | 直前のアクティベーション結果メッセージを返す |
 | `acr_render_pdf(templateJson, dataJson, &outLen)` | PDFバイト列を生成 |
 | `acr_free_buffer(ptr, len)` | 上記が返したバッファを解放（呼び出し側は必ず呼ぶこと） |
 | `acr_last_error()` | 直近の描画呼び出しが失敗した理由を返す（成功時は空文字列） |
@@ -121,23 +119,6 @@ cgo の場合は `CGO_LDFLAGS` でそのプラットフォームの `native/` �
 を指定し（例: Windowsなら `-L${SRCDIR}/windows-x64/native -laxr_runtime`
 で `.lib` を、Linux/macOSなら `.so`/`.dylib` を直接指定）、cgoの
 プリアンブルで `#include "acr.h"` してください。
-
-## ライセンスとウォーターマーク
-
-**アクティベートしていない状態（既定）では、出力PDFにウォーターマークが
-入ります。** ENGINEライセンスでアクティベートした場合のみ
-ウォーターマークが消えます。
-
-ライセンスキーは [licensvr.acrossreport.com](https://licensvr.acrossreport.com)
-で無償登録すると取得できます（Google・GitHub・メールアドレスのいずれかで
-登録可能、ACR Engine向けの登録フォームからどうぞ）。取得したキーを
-`ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY` に設定してください。
-
-各サンプルは、環境変数 `ACR_LICENSE_EMAIL` / `ACR_LICENSE_KEY` の両方が
-設定されている場合のみ `acr_license_activate()` を呼び出します（未設定
-なら "activation: skipped" と表示してそのまま未認証状態で進みます）。
-**ウォーターマークの有無は、生成された `output.pdf` を実際に開いて
-確認してください。**
 
 ## 注意点（組み込み時に意識すること）
 

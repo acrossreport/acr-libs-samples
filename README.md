@@ -93,8 +93,6 @@ This sample only uses the following minimal set of functions. See
 
 | Function | Description |
 |---|---|
-| `acr_license_activate(email, key)` | Contacts the license server to activate (requires network access) |
-| `acr_license_last_message()` | Returns the message from the most recent activation attempt |
 | `acr_render_pdf(templateJson, dataJson, &outLen)` | Generates a PDF byte buffer |
 | `acr_free_buffer(ptr, len)` | Frees the buffer returned by the functions above (the caller must always call this) |
 | `acr_last_error()` | Returns the reason the most recent render call failed (empty string on success) |
@@ -122,24 +120,6 @@ For cgo, point `CGO_LDFLAGS` at the platform's `native/` folder (e.g.
 `-L${SRCDIR}/windows-x64/native -laxr_runtime` on Windows, using the
 `.lib`; `-laxr_runtime` against the `.so`/`.dylib` directly on Linux/macOS)
 and `#include "acr.h"` from your cgo preamble.
-
-## License and watermark
-
-**When not activated (the default), the output PDF includes a
-watermark.** The watermark only disappears once you've activated with
-an ENGINE license.
-
-You can obtain a license key for free at
-[licensvr.acrossreport.com](https://licensvr.acrossreport.com) (sign up
-with Google, GitHub, or an email address, using the registration form
-for ACR Engine). Set the key you receive as `ACR_LICENSE_EMAIL` /
-`ACR_LICENSE_KEY`.
-
-Each sample only calls `acr_license_activate()` when both the
-`ACR_LICENSE_EMAIL` and `ACR_LICENSE_KEY` environment variables are set
-(if they aren't, it prints "activation: skipped" and proceeds
-unactivated). **Check whether the watermark is present by actually
-opening the generated `output.pdf`.**
 
 ## Notes for embedding
 

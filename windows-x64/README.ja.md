@@ -44,23 +44,3 @@ java -jar target/acr-libs-sample-jar-with-dependencies.jar
 
 Python / C# / VB.NET は実機で動作確認済みです。Java はコードは他プラット
 フォームと同一のサンプルですが、この端末には Maven が無いため未実行です。
-
-## ライセンス・アクティベーション
-
-未アクティベートで実行すると出力PDFにウォーターマークが入ります。
-ライセンスキーがある場合は、アクティベートしてから実行してください。
-ウォーターマークの有無は `output.pdf` を開いて確認してください。
-
-```bash
-# cmd.exe の場合
-set ACR_LICENSE_EMAIL=you@example.com
-set ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx
-python render_sample.py
-```
-
-```powershell
-# PowerShell の場合
-$env:ACR_LICENSE_EMAIL = "you@example.com"
-$env:ACR_LICENSE_KEY = "ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx"
-python render_sample.py
-```

@@ -50,14 +50,3 @@ JDK et Maven en une seule commande.
 
 Les 4 langages ont été vérifiés sur une machine réelle (Ubuntu 24.04,
 x86_64).
-
-## Licence et activation
-
-Sans activation, le PDF généré comporte un filigrane. Si vous disposez
-d'une clé de licence, activez avant d'exécuter. Vérifiez la présence
-du filigrane en ouvrant `output.pdf`.
-
-```bash
-ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
-    python3 render_sample.py
-```

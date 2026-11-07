@@ -48,14 +48,3 @@ Maven at once.
 
 All 4 languages have been verified on real hardware (macOS, Intel
 x64).
-
-## License and activation
-
-Running without activation adds a watermark to the output PDF. If you
-have a license key, activate before running. Check whether the
-watermark is present by opening `output.pdf`.
-
-```bash
-ACR_LICENSE_EMAIL=you@example.com ACR_LICENSE_KEY=ACR-xxxx-xxxx-xxxxxxxx-xxxxxxxx \
-    python3 render_sample.py
-```
